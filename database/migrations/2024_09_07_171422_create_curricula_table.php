@@ -13,7 +13,14 @@ return new class extends Migration
     {
         Schema::create('curricula', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
+            $table->string('course_code');
+            $table->string('descriptive_title');
+            $table->tinyInteger('units');
+            $table->tinyInteger('lec')->nullable();
+            $table->tinyInteger('lab')->nullable();
+            $table->tinyInteger('cmo')->nullable();
+            $table->tinyInteger('hei')->nullable();
+            $table->string('pre_requisite')->default('None');
             $table->foreignId('academic_id')->constrained('academic_years')->onDelete('cascade');
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->string('year_level');

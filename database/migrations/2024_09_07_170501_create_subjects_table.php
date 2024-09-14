@@ -21,7 +21,6 @@ return new class extends Migration
             $table->tinyInteger('cmo')->nullable();
             $table->tinyInteger('hei')->nullable();
             $table->string('pre_requisite')->default('None');
-            $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->timestamps();
         });
     }
