@@ -1,0 +1,249 @@
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import InputError from "@/Components/InputError";
+import InputLabel from "@/Components/InputLabel";
+import TextInput from "@/Components/TextInput";
+import { Head, Link, useForm } from "@inertiajs/react";
+import SelectInput from "@/Components/SelectInput";
+import { useState } from "react";
+
+export default function Add({ auth, academic, courses, curr_edit }) {
+    const { data, setData, post, errors, reset } = useForm({
+        course_code: curr_edit.data.course_code || "",
+        descriptive_title: curr_edit.data.descriptive_title || "",
+        units: curr_edit.data.units ||"",
+        cmo: curr_edit.data.cmo ||"",
+        hei: curr_edit.data.hei ||"",
+        lec: curr_edit.data.lec ||"",
+        lab: curr_edit.data.lab ||"",
+        pre_requisite: curr_edit.data.pre_requisite ||"",
+        year_level: curr_edit.data.year_level ||"",
+        course_id : curr_edit.data.course_id ||"",
+        academic_id : curr_edit.data.academic_id ||"",
+        _method : "PUT"
+    });
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        post(route("curriculum.update", curr_edit.data.id), {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsSubmitting(false);
+                reset();
+            },
+            onError: () => {
+                setIsSubmitting(false);
+            },
+        });
+    };
+
+    return (
+        <AuthenticatedLayout
+            user={auth.user}
+            header={
+                <div className="flex justify-between items-center">
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                        Edit Curriculum
+                    </h2>
+                </div>
+            }
+        >
+            <Head title="Class Management" />
+
+            <div className="py-12">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                        <div className="p-6 text-gray-900 dark:text-gray-100">
+                            <form
+                                onSubmit={handleSubmit}
+                                className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg"
+                            >
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <InputLabel htmlFor="code" value="Course Code" />
+                                        <TextInput
+                                            id="code"
+                                            type="text"
+                                            name="course_code"
+                                            value={data.course_code}
+                                            className="mt-1 block w-full"
+                                            autoFocus
+                                            onChange={(e) => setData("course_code", e.target.value)}
+                                        />
+                                        <InputError message={errors.course_code} className="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="title" value="Descriptive Title" />
+                                        <TextInput
+                                            id="title"
+                                            type="text"
+                                            name="descriptive_title"
+                                            value={data.descriptive_title}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("descriptive_title", e.target.value)}
+                                        />
+                                        <InputError message={errors.descriptive_title} className="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="unit" value="Units" />
+                                        <TextInput
+                                            id="unit"
+                                            type="number"
+                                            name="units"
+                                            value={data.units}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("units", e.target.value)}
+                                        />
+                                        <InputError message={errors.units} className="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="unit1" value="CMO" />
+                                        <TextInput
+                                            id="unit1"
+                                            type="number"
+                                            name="cmo"
+                                            value={data.cmo}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("cmo", e.target.value)}
+                                        />
+                                        <InputError message={errors.cmo} className="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="unit2" value="HEI" />
+                                        <TextInput
+                                            id="unit2"
+                                            type="number"
+                                            name="hei"
+                                            value={data.hei}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("hei", e.target.value)}
+                                        />
+                                        <InputError message={errors.hei} className="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="unit3" value="LEC" />
+                                        <TextInput
+                                            id="unit3"
+                                            type="number"
+                                            name="lec"
+                                            value={data.lec}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("lec", e.target.value)}
+                                        />
+                                        <InputError message={errors.lec} className="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="unit4" value="LAB" />
+                                        <TextInput
+                                            id="unit4"
+                                            type="number"
+                                            name="lab"
+                                            value={data.lab}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("lab", e.target.value)}
+                                        />
+                                        <InputError message={errors.lab} className="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="pre" value="Pre-Requisite" />
+                                        <SelectInput
+                                            id="pre"
+                                            name="pre_requisite"
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("pre_requisite", e.target.value)}
+                                            value={data.pre_requisite}
+                                        >
+                                            <option value="" hidden>Select Pre-Requisite</option>
+                                            <option value="None">None</option>
+                                           
+                                        </SelectInput>
+                                        <InputError message={errors.pre_requisite} className="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="year" value="Year Level" />
+                                        <SelectInput
+                                            id="year"
+                                            name="year_level"
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("year_level", e.target.value)}
+                                            value={data.year_level}
+                                        >
+                                            <option value="" hidden>Select Year</option>
+                                            <option value="First Year">First Year</option>
+                                            <option value="Second Year">Second Year</option>
+                                            <option value="Third Year">Third Year</option>
+                                            <option value="Fourth Year">Fourth Year</option>
+                                        </SelectInput>
+                                        <InputError message={errors.year_level} className="mt-2" />
+                                    </div>
+                                    <div>
+                                    <InputLabel htmlFor="pre" value="Pre-Requisite" />
+                                        <TextInput
+                                            id="pre"
+                                            name="pre_requisite"
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("pre_requisite", e.target.value)}
+                                            value={data.pre_requisite}
+                                        />
+                                        <InputError message={errors.course_id} className="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="academic" value="Academic Year" />
+                                        <SelectInput
+                                            id="academic"
+                                            name="academic_id"
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("academic_id", e.target.value)}
+                                            value={data.academic_id}
+                                        >
+                                            <option value="" hidden>Select Academic Year</option>
+                                            {academic.map((acad) => (
+                                                <option key={acad.id} value={acad.id}>
+                                                    {acad.school_year} - {acad.semester}
+                                                </option>
+                                            ))}
+                                        </SelectInput>
+                                        <InputError message={errors.academic_id} className="mt-2" />
+                                    </div>
+                                </div>
+
+                                
+
+                                <div className="mt-6 flex items-center justify-end gap-4">
+                                    <Link
+                                        href={route("section.index")}
+                                        className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150"
+                                    >
+                                        Cancel
+                                    </Link>
+                                    <button
+                                        type="submit"
+                                        className={`inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 ${
+                                            isSubmitting ? 'opacity-25' : ''
+                                        }`}
+                                        disabled={isSubmitting}
+                                    >
+                                        {isSubmitting ? 'Submitting...' : 'Submit'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </AuthenticatedLayout>
+    );
+}

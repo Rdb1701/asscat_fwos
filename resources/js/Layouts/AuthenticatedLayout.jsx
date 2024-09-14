@@ -108,9 +108,16 @@ export default function Authenticated({ user, header, children }) {
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                     <NavLink
                                         href={route("chairperson.dashboard")}
-                                        active={route().current("dashboard")}
+                                        active={route().current("chairperson.dashboard")}
                                     >
-                                        Dashboard
+                                        Class Management
+                                    </NavLink>
+
+                                    <NavLink
+                                        href={route("curriculum.index")}
+                                        active={route().current("curriculum.index")}
+                                    >
+                                        Curriculum File
                                     </NavLink>
                                 </div>
                             )}

@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('course_code');
             $table->string('descriptive_title');
-            $table->tinyInteger('units');
+            $table->tinyInteger('units')->nullable();;
             $table->tinyInteger('lec')->nullable();
             $table->tinyInteger('lab')->nullable();
             $table->tinyInteger('cmo')->nullable();
             $table->tinyInteger('hei')->nullable();
-            $table->string('pre_requisite')->default('None');
+            $table->string('pre_requisite')->nullable()->default('None');
             $table->foreignId('academic_id')->constrained('academic_years')->onDelete('cascade');
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->string('year_level');

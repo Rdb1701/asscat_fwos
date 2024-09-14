@@ -5,6 +5,8 @@ use App\Http\Controllers\Dean\ChairpersonController;
 use App\Http\Controllers\Dean\ProgramController;
 use App\Http\Controllers\DeanController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\Head\CurriculumController;
+use App\Http\Controllers\Head\SectionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
@@ -70,9 +72,12 @@ Route::middleware('auth', 'dean')->group(function () {
 //CHAIRPERSON MIDDLEWARE
 Route::middleware('auth', 'chairperson')->group(function () {
     //chairperson auth dashboard inertia
-    Route::get('chairperson/dashboard', function () {
-        return Inertia::render('Chairperson/Dashboard');
-    })->name('chairperson.dashboard');
+    Route::get('chairperson/dashboard', [SectionController::class, 'index'])
+    ->name('chairperson.dashboard');
+
+    Route::resource('section', SectionController::class);
+
+    Route::resource('curriculum', CurriculumController::class);
 });
 
 
