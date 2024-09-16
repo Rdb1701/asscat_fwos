@@ -38,13 +38,13 @@ Route::get('/', function () {
 //REGISTRAR MIDDLEWARE
 Route::middleware('auth', 'registrar')->group(function () {
     //registrar auth dashboard inertia
-    Route::get('registrar/dashboard',[AcademicYearController::class, 'index'])
-    ->name('registrar.dashboard');
-    
+    Route::get('registrar/dashboard', [AcademicYearController::class, 'index'])
+        ->name('registrar.dashboard');
+
 
     Route::resource('academic', AcademicYearController::class);
-    Route::resource('department', DepartmentController::class );
-    Route::resource('deanAccount', DeanController::class );
+    Route::resource('department', DepartmentController::class);
+    Route::resource('deanAccount', DeanController::class);
 
     Route::put('dean/{dean}/changepassword', [DeanController::class, 'changepassword'])
         ->name('dean_account.changepassword');
@@ -56,7 +56,7 @@ Route::middleware('auth', 'dean')->group(function () {
     //dean auth dashboard inertia
 
     Route::get('dean/dashboard', [ProgramController::class, 'index'])
-    ->name('dean.dashboard');
+        ->name('dean.dashboard');
 
     Route::resource('program', ProgramController::class);
 
@@ -64,8 +64,7 @@ Route::middleware('auth', 'dean')->group(function () {
 
 
     Route::put('chairperson/{chairperson}/changepassword', [ChairpersonController::class, 'changepassword'])
-    ->name('chair_account.changepassword');
-
+        ->name('chair_account.changepassword');
 });
 
 
@@ -73,11 +72,16 @@ Route::middleware('auth', 'dean')->group(function () {
 Route::middleware('auth', 'chairperson')->group(function () {
     //chairperson auth dashboard inertia
     Route::get('chairperson/dashboard', [SectionController::class, 'index'])
-    ->name('chairperson.dashboard');
+        ->name('chairperson.dashboard');
 
     Route::resource('section', SectionController::class);
 
     Route::resource('curriculum', CurriculumController::class);
+
+    Route::get('curriculum_search', [CurriculumController::class, 'getSearch'])->name('getSearch.curriculum');
+
+    Route::get('curriculum_print',[CurriculumController::class, 'getPrint'])->name('getPrint.curriculum');
+
 });
 
 
@@ -88,6 +92,8 @@ Route::middleware('auth', 'faculty')->group(function () {
         return Inertia::render('Faculty/Dashboard');
     })->name('faculty.dashboard');
 });
+
+
 
 
 Route::middleware('auth')->group(function () {

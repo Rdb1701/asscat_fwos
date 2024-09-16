@@ -186,7 +186,7 @@ export default function Add({ auth, academic, courses }) {
                                         <InputError message={errors.year_level} className="mt-2" />
                                     </div>
                                     <div>
-                                        <InputLabel htmlFor="course" value="Pre-Requisite" />
+                                        <InputLabel htmlFor="course" value="Select Program" />
                                         <SelectInput
                                             id="course"
                                             name="course_id"

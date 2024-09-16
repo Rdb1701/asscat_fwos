@@ -16,7 +16,7 @@ class AcademicYearController extends Controller
     public function index()
     {
         $query = AcademicYear::query();
-        $academic_year = $query->paginate();
+        $academic_year = $query->get();
 
 
 
@@ -52,7 +52,7 @@ class AcademicYearController extends Controller
     public function show(AcademicYear $academicYear)
     {
         $query = AcademicYear::query();
-        $academic_year = $query->paginate();
+        $academic_year = $query->get();
 
         return inertia("Registrar/AcademicYear/Index", [
             'academic_year' => AcademicResource::collection($academic_year),

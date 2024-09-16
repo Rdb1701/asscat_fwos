@@ -125,7 +125,7 @@ export default function Dashboard({ auth, dean_account, success }) {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {dean_account.data.map((dean) => (
+                                        {dean_account.map((dean) => (
                                             <tr
                                                 key={dean.id}
                                                 className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"

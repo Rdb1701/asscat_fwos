@@ -24,7 +24,7 @@ class DeanController extends Controller
                 'd.department_name'
             )
             ->where('us.role', 'Dean')
-            ->paginate();
+            ->get();
 
         return inertia("Registrar/Dean/Index", [
             'dean_account' => $query,
@@ -70,7 +70,7 @@ class DeanController extends Controller
                 'd.department_name'
             )
             ->where('us.role', 'Dean')
-            ->paginate();
+            ->get();
 
         return inertia("Registrar/Dean/Index", [
             'dean_account' => $query,

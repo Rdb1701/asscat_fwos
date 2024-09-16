@@ -119,6 +119,7 @@ export default function Authenticated({ user, header, children }) {
                                     >
                                         Curriculum File
                                     </NavLink>
+                                                              
                                 </div>
                             )}
 

@@ -7,6 +7,7 @@ use App\Models\Section;
 use App\Http\Requests\StoreSectionRequest;
 use App\Http\Requests\UpdateSectionRequest;
 use App\Http\Resources\SectionResource;
+use Illuminate\Support\Facades\Auth;
 
 class SectionController extends Controller
 {
@@ -16,7 +17,7 @@ class SectionController extends Controller
     public function index()
     {
         $query = Section::query();
-        $sections = $query->paginate();
+        $sections = $query->get();
 
         return inertia("Chairperson/Section/Index", [
             "sections" => SectionResource::collection($sections),
@@ -50,7 +51,7 @@ class SectionController extends Controller
     public function show(Section $section)
     {
         $query = Section::query();
-        $sections = $query->paginate();
+        $sections = $query->get();
 
         return inertia("Chairperson/Section/Index", [
             "sections" => SectionResource::collection($sections),

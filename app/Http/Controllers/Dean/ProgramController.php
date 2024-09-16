@@ -19,7 +19,7 @@ class ProgramController extends Controller
         $query = DB::table('courses as c')
             ->leftJoin('departments as d', 'c.department_id', 'd.id')
             ->select('c.*', 'd.department_name')
-            ->paginate();
+            ->get();
 
         return inertia('Dean/Program/Index', [
             'program' => CourseResource::collection($query),
@@ -62,7 +62,7 @@ class ProgramController extends Controller
         $query = DB::table('courses as c')
             ->leftJoin('departments as d', 'c.department_id', 'd.id')
             ->select('c.*', 'd.department_name')
-            ->paginate();
+            ->get();
 
         return inertia('Dean/Program/Index', [
             'program' => CourseResource::collection($query),

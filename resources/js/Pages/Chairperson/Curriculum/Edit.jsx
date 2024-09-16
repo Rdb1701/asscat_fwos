@@ -157,17 +157,13 @@ export default function Add({ auth, academic, courses, curr_edit }) {
 
                                     <div>
                                         <InputLabel htmlFor="pre" value="Pre-Requisite" />
-                                        <SelectInput
+                                        <TextInput
                                             id="pre"
                                             name="pre_requisite"
                                             className="mt-1 block w-full"
                                             onChange={(e) => setData("pre_requisite", e.target.value)}
                                             value={data.pre_requisite}
-                                        >
-                                            <option value="" hidden>Select Pre-Requisite</option>
-                                            <option value="None">None</option>
-                                           
-                                        </SelectInput>
+                                        />
                                         <InputError message={errors.pre_requisite} className="mt-2" />
                                     </div>
 
@@ -189,14 +185,21 @@ export default function Add({ auth, academic, courses, curr_edit }) {
                                         <InputError message={errors.year_level} className="mt-2" />
                                     </div>
                                     <div>
-                                    <InputLabel htmlFor="pre" value="Pre-Requisite" />
-                                        <TextInput
-                                            id="pre"
-                                            name="pre_requisite"
+                                    <InputLabel htmlFor="pre" value="Program" />                                  
+                                        <SelectInput
+                                            id="course"
+                                            name="course_id"
                                             className="mt-1 block w-full"
-                                            onChange={(e) => setData("pre_requisite", e.target.value)}
-                                            value={data.pre_requisite}
-                                        />
+                                            onChange={(e) => setData("course_id", e.target.value)}
+                                            value={data.course_id}
+                                        >
+                                            <option value="" hidden>Select Course</option>
+                                            {courses.map((c) => (
+                                                <option key={c.id} value={c.id}>
+                                                    {c.course_name} - {c.course_description} [{c.department_name}]
+                                                </option>
+                                            ))}
+                                        </SelectInput>
                                         <InputError message={errors.course_id} className="mt-2" />
                                     </div>
 
@@ -224,7 +227,7 @@ export default function Add({ auth, academic, courses, curr_edit }) {
 
                                 <div className="mt-6 flex items-center justify-end gap-4">
                                     <Link
-                                        href={route("section.index")}
+                                        href={route("curriculum.index")}
                                         className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150"
                                     >
                                         Cancel

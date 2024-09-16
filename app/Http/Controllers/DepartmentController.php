@@ -15,7 +15,7 @@ class DepartmentController extends Controller
     public function index()
     {
         $query = Department::query();
-        $department = $query->paginate();
+        $department = $query->get();
 
         return inertia("Registrar/College/Index",[
             'departments'=> DepartmentResource::collection($department),
@@ -51,7 +51,7 @@ class DepartmentController extends Controller
     public function show(Department $department)
     {
         $query = Department::query();
-        $department = $query->paginate();
+        $department = $query->get();
 
         return inertia("Registrar/College/Index",[
             'departments'=> DepartmentResource::collection($department),

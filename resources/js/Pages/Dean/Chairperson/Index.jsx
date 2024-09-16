@@ -125,7 +125,7 @@ export default function Dashboard({ auth, chair_account, success }) {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {chair_account.data.map((chair) => (
+                                        {chair_account.map((chair) => (
                                             <tr
                                                 key={chair.id}
                                                 className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"

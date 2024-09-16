@@ -25,7 +25,7 @@ class ChairpersonController extends Controller
                 'c.course_name'
             )
             ->where('us.role', 'Chairperson')
-            ->paginate();
+            ->get();
 
         return inertia("Dean/Chairperson/Index", [
             'chair_account' => $query,
@@ -71,7 +71,7 @@ class ChairpersonController extends Controller
                 'c.course_name'
             )
             ->where('us.role', 'Chairperson')
-            ->paginate();
+            ->get();
 
         return inertia("Dean/Chairperson/Index", [
             'chair_account' => $query,
