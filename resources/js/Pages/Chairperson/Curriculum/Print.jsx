@@ -257,10 +257,10 @@ export default function PrintableCurriculum({
                         </tr>
                         <tr>
                             <td className="signature-name font-bold">
-                                {chairperson.chairperson_name}
+                                {chairperson.chairperson_name.toUpperCase()}
                             </td>
                             <td className="signature-name font-bold">
-                                {program.dean_name}
+                                {program.dean_name.toUpperCase()}
                             </td>
                         </tr>
                         <tr>

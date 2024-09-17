@@ -119,6 +119,13 @@ export default function Authenticated({ user, header, children }) {
                                     >
                                         Curriculum File
                                     </NavLink>
+
+                                    <NavLink
+                                        href={route("faculty_file.index")}
+                                        active={route().current("faculty_file.index")}
+                                    >
+                                        Faculty File
+                                    </NavLink>
                                                               
                                 </div>
                             )}

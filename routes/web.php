@@ -5,6 +5,7 @@ use App\Http\Controllers\Dean\ChairpersonController;
 use App\Http\Controllers\Dean\ProgramController;
 use App\Http\Controllers\DeanController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\Faculty\FacultyController;
 use App\Http\Controllers\Head\CurriculumController;
 use App\Http\Controllers\Head\SectionController;
 use App\Http\Controllers\ProfileController;
@@ -82,6 +83,11 @@ Route::middleware('auth', 'chairperson')->group(function () {
 
     Route::get('curriculum_print',[CurriculumController::class, 'getPrint'])->name('getPrint.curriculum');
 
+    Route::resource('faculty_file', FacultyController:: class);
+
+    Route::put('faculty_file/{faculty_file}/changepassword', [FacultyController::class, 'changepassword'])
+    ->name('faculty_account.changepassword');
+
 });
 
 
@@ -92,8 +98,6 @@ Route::middleware('auth', 'faculty')->group(function () {
         return Inertia::render('Faculty/Dashboard');
     })->name('faculty.dashboard');
 });
-
-
 
 
 Route::middleware('auth')->group(function () {
