@@ -19,6 +19,8 @@ export default function Index({
         const key = `${cur.year_level}-${cur.semester}`;
         if (!acc[key]) acc[key] = [];
         acc[key].push(cur);
+
+        console.log(acc);
         return acc;
     }, {});
 

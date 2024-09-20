@@ -4,8 +4,10 @@ import Dropdown from "@/Components/Dropdown";
 import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link } from "@inertiajs/react";
-import { FaUserTie, FaCalendar, FaGraduationCap  } from "react-icons/fa";
-import { FaSchool, FaClipboardCheck } from "react-icons/fa6";
+import { FaUserTie, FaCalendar, FaGraduationCap, FaBook, FaClipboardList    } from "react-icons/fa";
+import { FaSchool, FaClipboardCheck, FaBookOpenReader  } from "react-icons/fa6";
+import { MdClass } from "react-icons/md";
+import { GiTeacher } from "react-icons/gi";
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
@@ -110,6 +112,9 @@ export default function Authenticated({ user, header, children }) {
                                         href={route("chairperson.dashboard")}
                                         active={route().current("chairperson.dashboard")}
                                     >
+                                    <MdClass
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
                                         Class Management
                                     </NavLink>
 
@@ -117,6 +122,9 @@ export default function Authenticated({ user, header, children }) {
                                         href={route("curriculum.index")}
                                         active={route().current("curriculum.index")}
                                     >
+                                     <FaBookOpenReader
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
                                         Curriculum File
                                     </NavLink>
 
@@ -124,9 +132,31 @@ export default function Authenticated({ user, header, children }) {
                                         href={route("faculty_file.index")}
                                         active={route().current("faculty_file.index")}
                                     >
+                                    <GiTeacher
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
                                         Faculty File
                                     </NavLink>
-                                                              
+                                    <NavLink
+                                        href={route("faculty_file.index")}
+                                        active={route().current("faculty_file.index")}
+                                    >
+                                     <FaClipboardList
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
+                                        Faculty Loading
+                                    </NavLink>  
+
+                                    <NavLink
+                                        href={route("course_offering.index")}
+                                        active={route().current("course_offering.index")}
+                                    >
+                                     <FaBook
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
+                                        Course Offering
+                                    </NavLink>  
+                                       
                                 </div>
                             )}
 

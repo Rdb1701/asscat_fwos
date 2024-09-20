@@ -103,14 +103,26 @@ class FacultyController extends Controller
      */
     public function show(User $user)
     {
-        //
+        $users = Auth::user();
+        $query = DB::table('users as u')
+            ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
+            ->leftJoin('departments as d', 'd.id', 'ud.department_id')
+            ->leftJoin('courses as c', 'c.department_id', 'd.id')
+            ->select('u.*', 'ud.user_code_id')
+            ->where('c.id', $users->course_id)
+            ->get();
+
+        return inertia("Chairperson/Faculty/Index", [
+            'faculty'  => FacultyResource::collection($query),
+            'success'  => session('success')
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(User $faculty_file)
-    {   
+    {
         $user = Auth::user();
         $query = DB::table('courses')->select('*')->where('id', $user->course_id)->get();
 
@@ -123,7 +135,7 @@ class FacultyController extends Controller
             ->where('user_id', $faculty_file->id)
             ->first();
 
-        
+
 
         return inertia('Chairperson/Faculty/Edit', [
             'program' => $query,
@@ -162,22 +174,22 @@ class FacultyController extends Controller
 
             //insert to User Department
             DB::table('users_deparment')
-            ->where('user_id', $faculty_file->id)
-            ->update([
-                'user_code_id'  => $user_code,
-                'position'      => $request->role,
-                'department_id' => $department_id,
-            ]);
+                ->where('user_id', $faculty_file->id)
+                ->update([
+                    'user_code_id'  => $user_code,
+                    'position'      => $request->role,
+                    'department_id' => $department_id,
+                ]);
 
             //insert for user employment
             DB::table('users_employment')
-            ->where('user_id', $faculty_file->id)
-            ->update([
-                'employment_classification' => $request->employment_classification,
-                'employment_status'         => $request->employment_status,
-                'regular_load'              => $request->regular_load,
-                'extra_load'                => $request->extra_load
-            ]);
+                ->where('user_id', $faculty_file->id)
+                ->update([
+                    'employment_classification' => $request->employment_classification,
+                    'employment_status'         => $request->employment_status,
+                    'regular_load'              => $request->regular_load,
+                    'extra_load'                => $request->extra_load
+                ]);
         } else {
             return to_route('faculty_file.index')
                 ->with('success', 'Cannot be Updated');

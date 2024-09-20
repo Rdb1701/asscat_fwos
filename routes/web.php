@@ -6,6 +6,7 @@ use App\Http\Controllers\Dean\ProgramController;
 use App\Http\Controllers\DeanController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\Faculty\FacultyController;
+use App\Http\Controllers\Head\CourseOfferingController;
 use App\Http\Controllers\Head\CurriculumController;
 use App\Http\Controllers\Head\SectionController;
 use App\Http\Controllers\ProfileController;
@@ -87,6 +88,10 @@ Route::middleware('auth', 'chairperson')->group(function () {
 
     Route::put('faculty_file/{faculty_file}/changepassword', [FacultyController::class, 'changepassword'])
     ->name('faculty_account.changepassword');
+
+    Route::resource('course_offering', CourseOfferingController::class);
+
+    Route::get('course_offeringPrint', [CourseOfferingController::class, 'getSearch'])->name('getSearch.courseOffering');
 
 });
 
