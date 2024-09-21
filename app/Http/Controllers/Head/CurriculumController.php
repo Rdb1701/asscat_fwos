@@ -196,9 +196,10 @@ class CurriculumController extends Controller
         // Check if no data is found
         $noDataFound = $search->isEmpty();
 
+
         return inertia("Chairperson/Curriculum/Search", [
-            'curriculum' => $search,
-            'program' => $get_course,
+            'curriculum'  => $search,
+            'program'     => $get_course,
             'school_year' => $school_year,
             'noDataFound' => $noDataFound
         ]);
@@ -254,6 +255,7 @@ class CurriculumController extends Controller
 
         // Check if no data is found
         $noDataFound = $search->isEmpty();
+
 
         return inertia("Chairperson/Curriculum/Print", [
             'curriculum' => $search,

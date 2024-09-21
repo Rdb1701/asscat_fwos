@@ -120,13 +120,33 @@ class CourseOfferingController extends Controller
 
     function getSearch(Request $request)
     {
+
+        $user   = Auth::user();
+      
         //SEARCH QUERY
         $course      = $request->input('course');
         $school_year = $request->input('school_year');
         $year_level  = $request->input('year_level');
 
+        //get school year
+        $get_school_year = DB::table('academic_years')->select('school_year', 'semester')->where('id', $school_year)->first();
 
-        $query = DB::table('course_offerings as co')
+        // get course and Dean
+        $get_course = DB::table('courses as c')->select(
+            'c.course_description',
+            'c.course_name',
+            'u.name as dean_name',
+            'd.department_name',
+            'd.department_description',
+            'u.department_id'
+        )
+            ->leftJoin('users as u', 'u.department_id', 'c.department_id')
+            ->leftJoin('departments as d', 'd.id', 'c.department_id')
+            ->where('c.id', $course)->first();
+
+
+
+        $course_offering = DB::table('course_offerings as co')
             ->leftJoin('academic_years as ay', 'ay.id', 'co.academic_id')
             ->leftJoin('courses as c', 'c.id', 'co.course_id')
             ->leftJoin('sections as s', 's.id', 'co.section_id')
@@ -134,13 +154,89 @@ class CourseOfferingController extends Controller
             ->select(
                 'cur.*',
                 'c.course_name',
-                'cur.year_level'
+                'cur.year_level',
+                's.section_name',
+                'ay.school_year',
+                'ay.semester'
             )
             ->where('co.course_id', $course)
             ->where('cur.academic_id', $school_year)
             ->where('cur.year_level', $year_level)
+            ->where('co.year_level', $year_level)
+            ->where('co.academic_id', $school_year)
+            ->orderBy('s.section_name', 'asc')
             ->get();
 
-            dd($query);
+            // Check if no data is found
+        $noDataFound = $course_offering->isEmpty();
+
+        return inertia("Chairperson/CourseOffering/Search",[
+            'noDataFound'     => $noDataFound,
+            'courseOfferings' =>$course_offering,
+            'school_year'     => $get_school_year,
+            'program'         => $get_course,
+            'course_id'       => $course,
+            'academic_id'     => $school_year,
+            'year_level'      => $year_level
+
+
+        ]);
+    }
+
+    public function getPrint(Request $request){
+        //SEARCH QUERY
+        $course      = $request->input('course_id');
+        $school_year = $request->input('academic_id');
+        $year_level  = $request->input('year_level');
+
+        //get school year
+        $get_school_year = DB::table('academic_years')->select('school_year', 'semester')->where('id', $school_year)->first();
+
+        // get course and Dean
+        $get_course = DB::table('courses as c')->select(
+            'c.course_description',
+            'c.course_name',
+            'u.name as dean_name',
+            'd.department_name',
+            'd.department_description',
+            'u.department_id'
+        )
+            ->leftJoin('users as u', 'u.department_id', 'c.department_id')
+            ->leftJoin('departments as d', 'd.id', 'c.department_id')
+            ->where('c.id', $course)->first();
+
+
+
+        $course_offering = DB::table('course_offerings as co')
+            ->leftJoin('academic_years as ay', 'ay.id', 'co.academic_id')
+            ->leftJoin('courses as c', 'c.id', 'co.course_id')
+            ->leftJoin('sections as s', 's.id', 'co.section_id')
+            ->leftJoin('curricula as cur', 'cur.course_id', 'c.id')
+            ->select(
+                'cur.*',
+                'c.course_name',
+                'cur.year_level',
+                's.section_name',
+                'ay.school_year',
+                'ay.semester'
+            )
+            ->where('co.course_id', $course)
+            ->where('cur.academic_id', $school_year)
+            ->where('cur.year_level', $year_level)
+            ->where('co.year_level', $year_level)
+            ->where('co.academic_id', $school_year)
+            ->orderBy('s.section_name', 'asc')
+            ->get();
+
+            // Check if no data is found
+        $noDataFound = $course_offering->isEmpty();
+
+        return inertia("Chairperson/CourseOffering/Print",[
+            'noDataFound'     => $noDataFound,
+            'courseOfferings' =>$course_offering,
+            'school_year'     => $get_school_year,
+            'program'         => $get_course,
+
+        ]);
     }
 }

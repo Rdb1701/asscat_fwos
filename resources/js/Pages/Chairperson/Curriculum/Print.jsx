@@ -68,11 +68,11 @@ export default function PrintableCurriculum({
                             text-align: left;
                         }
                         .print-table thead {
-                            background-color: #f0f0f0 !important;
+                         
                         }
                         .print-table tfoot {
                             font-weight: bold;
-                            background-color: #f0f0f0 !important;
+                            
                         }
                         .print-table {
                             border: 2px solid #000;
@@ -103,7 +103,7 @@ export default function PrintableCurriculum({
 
                 {isEmpty ? (
                     <div className="text-center text-red-600 font-bold py-5">
-                        No data found for the selected course and school year.
+                        No data found
                     </div>
                 ) : (
                     Object.entries(groupByYearAndSemester).map(
@@ -135,7 +135,7 @@ export default function PrintableCurriculum({
                                         {yearLevel} - {semester}
                                     </h2>
                                     <table className="print-table border-2 border-gray-800">
-                                        <thead className="bg-gray-200">
+                                        <thead className="bg-green-200">
                                             <tr>
                                                 <th className="border border-gray-800 px-2 py-1">
                                                     Course No.
@@ -206,7 +206,7 @@ export default function PrintableCurriculum({
                                             ))}
                                         </tbody>
                                         <tfoot>
-                                            <tr className="bg-gray-200">
+                                            <tr className="bg-green-200">
                                                 <td
                                                     className="border border-gray-800 px-2 py-1 font-semibold"
                                                     colSpan={2}

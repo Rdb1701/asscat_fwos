@@ -91,7 +91,9 @@ Route::middleware('auth', 'chairperson')->group(function () {
 
     Route::resource('course_offering', CourseOfferingController::class);
 
-    Route::get('course_offeringPrint', [CourseOfferingController::class, 'getSearch'])->name('getSearch.courseOffering');
+    Route::get('course_offeringSearch', [CourseOfferingController::class, 'getSearch'])->name('getSearch.courseOffering');
+
+    Route::get('course_offeringPrint', [CourseOfferingController::class, 'getPrint'])->name('getPrint.courseOffering');
 
 });
 

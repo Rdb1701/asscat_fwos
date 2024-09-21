@@ -9,14 +9,17 @@ import Swal from "sweetalert2";
 
 export default function Index({
     auth,
-    curriculum,
+    courseOfferings,
     program,
     school_year,
     noDataFound,
+    course_id,
+    academic_id,
+    year_level,
 }) {
-    // Group the curriculum by year level and semester
-    const groupByYearAndSemester = curriculum.reduce((acc, cur) => {
-        const key = `${cur.year_level}-${cur.semester}`;
+    // Group the curriculum by section and program
+    const groupBySection = courseOfferings.reduce((acc, cur) => {
+        const key = `${cur.section_name}-${cur.course_name}`;
         if (!acc[key]) acc[key] = [];
         acc[key].push(cur);
 
@@ -25,15 +28,13 @@ export default function Index({
     }, {});
 
     // Check if there is no data to display
-    const isEmpty =
-        noDataFound || Object.keys(groupByYearAndSemester).length === 0;
+    const isEmpty = noDataFound || Object.keys(groupBySection).length === 0;
 
-    const handleClick = (program, school_year) => {
-      
-        router.get(route("getPrint.curriculum"), {
-            course: program,
-            school_year: school_year,
-       
+    const handleClick = (course_id, academic_id, year_level) => {
+        router.get(route("getPrint.courseOffering"), {
+            course_id: course_id,
+            academic_id: academic_id,
+            year_level: year_level,
         });
     };
 
@@ -43,14 +44,12 @@ export default function Index({
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                        {program.course_description} (SY: {school_year})
+                        {program.course_description} (AY:{" "}
+                        {school_year.school_year} - {school_year.semester})
                     </h2>
                     <button
                         onClick={() =>
-                            handleClick(
-                                program.id,
-                                school_year
-                            )
+                            handleClick(course_id, academic_id, year_level)
                         }
                         className="text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 rounded-lg px-4 py-2 transition duration-150 ease-in-out flex items-center"
                     >
@@ -59,7 +58,7 @@ export default function Index({
 
                     {/* <Link
                         href={route("getPrint.curriculum")}
-                        className="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 rounded-lg px-4 py-2 transition duration-150 ease-in-out flex items-center"
+                        className="text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 rounded-lg px-4 py-2 transition duration-150 ease-in-out flex items-center"
                   
                     >
                         <FaPrint className="mr-2" /> Print
@@ -67,16 +66,17 @@ export default function Index({
                 </div>
             }
         >
-            <Head title="Curriculum Management" />
+            <Head title="Course Offering" />
             <div className="py-2">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
-                            <h1 className="text-center font-bold">CURRICULUM</h1>
+                            <h1 className="text-center font-bold">COURSE OFFERING</h1>
                         </div>
                     </div>
                 </div>
             </div>
+
             {isEmpty ? (
                 <div className="text-center text-red-600 font-bold py-5">
                     No data found
@@ -84,9 +84,9 @@ export default function Index({
             ) : (
                 // Wrap all tables in a single container for printing
                 <div id="tablesToPrint">
-                    {Object.entries(groupByYearAndSemester).map(
+                    {Object.entries(groupBySection).map(
                         ([key, courses], index) => {
-                            const [yearLevel, semester] = key.split("-");
+                            const [sectionName, courseName] = key.split("-");
 
                             // Calculate total units for CMO, HEI, LEC, and LAB
                             const totalCMO = courses.reduce(
@@ -116,7 +116,7 @@ export default function Index({
                                                     className="mb-8"
                                                 >
                                                     <h3 className="font-semibold text-lg mb-4">
-                                                        {yearLevel} : {semester}
+                                                        Section: {sectionName}
                                                     </h3>
                                                     <div className="overflow-x-auto">
                                                         <table className="datatable w-full text-sm text-left text-gray-500 dark:text-gray-400">

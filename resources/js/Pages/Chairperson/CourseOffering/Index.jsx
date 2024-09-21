@@ -110,10 +110,10 @@ export default function Index({
                                                         value={prog.id}
                                                         key={prog.id}
                                                     >
-                                                        {prog.course_name} -{" "}
-                                                        {
-                                                            prog.course_descriptionss
-                                                        }
+                                                        {prog.course_name}
+                                                        {/* {
+                                                            prog.course_description
+                                                        } */}
                                                     </option>
                                                 ))}
                                             </select>
