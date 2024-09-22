@@ -138,8 +138,8 @@ export default function Authenticated({ user, header, children }) {
                                         Faculty File
                                     </NavLink>
                                     <NavLink
-                                        href={route("faculty_file.index")}
-                                        active={route().current("faculty_file.index")}
+                                        href={route("faculty_load.index")}
+                                        active={route().current("faculty_load.index")}
                                     >
                                      <FaClipboardList
                                             style={{ marginRight: "8px" }}

@@ -6,6 +6,7 @@ use App\Http\Controllers\Dean\ProgramController;
 use App\Http\Controllers\DeanController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\Faculty\FacultyController;
+use App\Http\Controllers\Head\FacultyLoadController;
 use App\Http\Controllers\Head\CourseOfferingController;
 use App\Http\Controllers\Head\CurriculumController;
 use App\Http\Controllers\Head\SectionController;
@@ -94,6 +95,12 @@ Route::middleware('auth', 'chairperson')->group(function () {
     Route::get('course_offeringSearch', [CourseOfferingController::class, 'getSearch'])->name('getSearch.courseOffering');
 
     Route::get('course_offeringPrint', [CourseOfferingController::class, 'getPrint'])->name('getPrint.courseOffering');
+
+    Route::resource('faculty_load', FacultyLoadController::class);
+
+    Route::get('Faculty_load/view', [FacultyLoadController::class, 'facultyView'])->name('faculty_view.view');
+
+    Route::get('Faculty_load/change', [FacultyLoadController::class, 'change'])->name('faculty_load.change');
 
 });
 
