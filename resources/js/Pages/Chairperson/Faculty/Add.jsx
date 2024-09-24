@@ -160,6 +160,7 @@ export default function Add({ auth, program }) {
                         <option value="" hidden>- Employment Status -</option>
                         <option value="Full-Time">Full-Time</option>
                         <option value="Part-Time">Part-Time</option>
+                        <option value="COS">COS (Contract of Service)</option>
                       </SelectInput>
                       <InputError message={errors.employment_status} className="mt-2" />
                     </div>

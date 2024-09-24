@@ -135,10 +135,9 @@ export default function Add({ auth, section, course, academic }) {
                   </SelectInput>
                   <InputError message={errors.year_level} className="mt-2" />
                 </div>
-
                 <div className="mt-4 text-right">
                   <Link
-                    href={route("section.index")}
+                    href={route("course_offering.index")}
                     className="bg-gray-100 py-2 px-4 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2"
                   >
                     Cancel

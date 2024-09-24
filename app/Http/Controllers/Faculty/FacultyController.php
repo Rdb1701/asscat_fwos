@@ -176,7 +176,6 @@ class FacultyController extends Controller
             DB::table('users_deparment')
                 ->where('user_id', $faculty_file->id)
                 ->update([
-                    'user_code_id'  => $user_code,
                     'position'      => $request->role,
                     'department_id' => $department_id,
                 ]);
