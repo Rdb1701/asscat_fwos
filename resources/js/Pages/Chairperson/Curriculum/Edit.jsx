@@ -10,7 +10,6 @@ export default function Add({ auth, academic, courses, curr_edit }) {
     const { data, setData, post, errors, reset } = useForm({
         course_code: curr_edit.data.course_code || "",
         descriptive_title: curr_edit.data.descriptive_title || "",
-        units: curr_edit.data.units ||"",
         cmo: curr_edit.data.cmo ||"",
         hei: curr_edit.data.hei ||"",
         lec: curr_edit.data.lec ||"",
@@ -89,20 +88,6 @@ export default function Add({ auth, academic, courses, curr_edit }) {
                                         />
                                         <InputError message={errors.descriptive_title} className="mt-2" />
                                     </div>
-
-                                    <div>
-                                        <InputLabel htmlFor="unit" value="Units" />
-                                        <TextInput
-                                            id="unit"
-                                            type="number"
-                                            name="units"
-                                            value={data.units}
-                                            className="mt-1 block w-full"
-                                            onChange={(e) => setData("units", e.target.value)}
-                                        />
-                                        <InputError message={errors.units} className="mt-2" />
-                                    </div>
-
                                     <div>
                                         <InputLabel htmlFor="unit1" value="CMO" />
                                         <TextInput

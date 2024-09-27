@@ -43,40 +43,47 @@ class FacultyLoadController extends Controller
     public function store(StoreFacultyLoadRequest $request)
     {
         $data = $request->validated();
-        
+
         // Fetch faculty data
         $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
             ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
             ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
             ->where('u.id', $request->user_id)
             ->first();
-    
+
         // Units count per faculty (calculate total units considering lecture and laboratory)
         $count_units_per_faculty = DB::table('faculty_loads as fl')
             ->leftJoin('curricula as cur', 'cur.id', '=', 'fl.curriculum_id')
             ->where('fl.user_id', $request->user_id)
+            ->where('cur.academic_id', $request->academic)
             ->select(DB::raw('SUM(cur.lec) + SUM(cur.lab * 0.75) as total_units')) // Calculate total units
             ->value('total_units');
-    
+
         // Get the units of the new curriculum to be added
         $new_curriculum_units = DB::table('curricula')
             ->where('id', $request->curriculum_id)
             ->select(DB::raw('lec + (lab * 0.75) as units'))
             ->value('units');
-    
+
         // Preparations count for regular Employee
         $count_preparations = DB::table('faculty_loads as fl')
             ->leftJoin('curricula as cur', 'cur.id', '=', 'fl.curriculum_id')
             ->where('fl.user_id', $request->user_id)
+            ->where('cur.academic_id', $request->academic)
             ->select(DB::raw('COUNT(DISTINCT cur.course_code) as total'))
             ->value('total');
-    
+
         // Check if the curriculum ID already exists for the faculty
-        $curriculum_id_exists = DB::table('faculty_loads')
-            ->where('curriculum_id', $request->curriculum_id)
-            ->where('user_id', $request->user_id)
+        $curriculum_id_exists = DB::table('faculty_loads as fl')
+            ->leftJoin('curricula as cur', 'cur.id', '=', 'fl.curriculum_id')
+            ->where('fl.user_id', $request->user_id)
+            ->where('cur.academic_id', $request->academic)
+            ->where('fl.curriculum_id', $request->curriculum_id)
             ->exists();
-    
+
+        //check research Load Units
+        // $research_load_units = DB::table('')
+
         if ($query_faculty->employment_status == "Full-Time") {
             // Check if faculty has reached the maximum unit load after adding the new subject
             if (($count_units_per_faculty + $new_curriculum_units) > 27) {
@@ -85,7 +92,7 @@ class FacultyLoadController extends Controller
                     'message' => 'Adding this subject will exceed the maximum unit load of 27 units.',
                 ]);
             }
-    
+
             // Check for preparations count
             if ($count_preparations >= 4 && !$curriculum_id_exists && ($count_units_per_faculty + $new_curriculum_units) <= 27) {
                 return response()->json([
@@ -93,23 +100,23 @@ class FacultyLoadController extends Controller
                     'message' => 'Faculty has reached the maximum number of preparations (4).',
                 ]);
             }
-            
-            
+
+
             FacultyLoad::create($data);
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully Added Faculty Load!',
             ]);
         }
-    
+
         // Additional logic can be added for other employment statuses like Part-Time, Administrative, etc.
         return response()->json([
             'success' => false,
             'message' => 'Only Full-Time faculty can be added at this moment.',
         ]);
     }
-    
-    
+
+
 
     /**
      * Display the specified resource.

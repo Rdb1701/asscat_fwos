@@ -31,7 +31,6 @@ class UpdateCurriculumRequest extends FormRequest
                 'max:255'
             ],
             'descriptive_title' => ['required', 'max:255'],
-            'units'             => ['required', 'max:11'],
             'lec'               => [ 'max:11'],
             'lab'               => [ 'max:11'],
             'cmo'               => [ 'max:11'],
