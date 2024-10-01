@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\FacultyLoad;
 use App\Http\Requests\StoreFacultyLoadRequest;
 use App\Http\Requests\UpdateFacultyLoadRequest;
+use App\Models\AdministrativeLoad;
+use App\Models\ResearchLoad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -81,12 +83,23 @@ class FacultyLoadController extends Controller
             ->where('fl.curriculum_id', $request->curriculum_id)
             ->exists();
 
+        //administrative Load Units count
+        $administrative_load = AdministrativeLoad::where('user_id', $request->user_id)
+        ->sum('units');
+
+        //Research Load  Units Count
+        $research_load = ResearchLoad::where('user_id', $request->user_id)
+        ->sum('units');
+
+        $total_admin_research_load = $administrative_load + $research_load;
+
+
         //check research Load Units
         // $research_load_units = DB::table('')
 
         if ($query_faculty->employment_status == "Full-Time") {
             // Check if faculty has reached the maximum unit load after adding the new subject
-            if (($count_units_per_faculty + $new_curriculum_units) > 27) {
+            if (($count_units_per_faculty + $new_curriculum_units + $total_admin_research_load) > 27) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Adding this subject will exceed the maximum unit load of 27 units.',
@@ -94,7 +107,7 @@ class FacultyLoadController extends Controller
             }
 
             // Check for preparations count
-            if ($count_preparations >= 4 && !$curriculum_id_exists && ($count_units_per_faculty + $new_curriculum_units) <= 27) {
+            if ($count_preparations >= 4 && !$curriculum_id_exists && ($count_units_per_faculty + $new_curriculum_units + $total_admin_research_load) <= 27) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Faculty has reached the maximum number of preparations (4).',
@@ -177,6 +190,7 @@ class FacultyLoadController extends Controller
             ->leftJoin('administrative_loads as admin', 'admin.user_id', 'fl.user_id')
             ->leftJoin('research_loads as rl', 'rl.user_id', 'fl.user_id')
             ->leftJoin('sections as s', 's.id', 'fl.section')
+            ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
             ->select(
                 'fl.*',
                 'cur.course_code',
@@ -191,10 +205,22 @@ class FacultyLoadController extends Controller
                 'admin.units as admin_units',
                 'rl.load_desc as research_load',
                 'rl.units as research_units',
-                's.section_name'
+                's.section_name',
+                'acad.school_year',
+                'acad.semester'
             )
             ->where('fl.user_id', $faculty_id)
             ->get();
+
+        //administrative Load Units count
+        $administrative_faculty_load = AdministrativeLoad::where('user_id', $faculty_id)
+        ->sum('units');
+
+        //Research Load  Units Count
+        $research_faculty_load = ResearchLoad::where('user_id', $faculty_id)
+        ->sum('units');
+
+            
 
         return inertia("Chairperson/FacultyLoading/FacultyView", [
             'faculty_id'    => $faculty_id,
@@ -202,6 +228,8 @@ class FacultyLoadController extends Controller
             'sections'      => $section,
             'faculty_info'  => $query_faculty,
             'facultyLoad'   => $faculty_load_query,
+            'administrative_faculty_load' => $administrative_faculty_load,
+            'research_faculty_load' => $research_faculty_load,
             'success'       => session('success')
         ]);
     }
@@ -216,5 +244,96 @@ class FacultyLoadController extends Controller
             ->get();
 
         return response()->json($query);
+    }
+
+
+
+    //print faculty laod
+    public function getPrint(Request $request){
+
+        $user = Auth::user();
+        $academic_year  = $request->input('academic_year_filter');
+        $faculty_id        = $request->input('user_id');
+
+
+         //faculty data
+         $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
+         ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
+         ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
+         ->where('u.id', $faculty_id)
+         ->first();
+
+
+
+     //faculty_load view
+     $faculty_load_query = DB::table('faculty_loads as fl')
+         ->leftJoin('curricula as cur', 'cur.id', 'fl.curriculum_id')
+         ->leftJoin('administrative_loads as admin', 'admin.user_id', 'fl.user_id')
+         ->leftJoin('research_loads as rl', 'rl.user_id', 'fl.user_id')
+         ->leftJoin('sections as s', 's.id', 'fl.section')
+         ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
+         ->select(
+             'fl.*',
+             'cur.course_code',
+             'cur.descriptive_title',
+             'cur.units',
+             'cur.lec',
+             'cur.lab',
+             'cur.cmo',
+             'cur.hei',
+             'cur.pre_requisite',
+             'admin.load_desc as admin_load',
+             'admin.units as admin_units',
+             'rl.load_desc as research_load',
+             'rl.units as research_units',
+             's.section_name',
+             'acad.school_year',
+             'acad.semester'
+         )
+         ->where('fl.user_id', $faculty_id)
+         ->where('cur.academic_id', $academic_year)
+         ->get();
+        
+         //get academic year
+        $get_academic_year = DB::table('academic_years')->select('*')->where('id',$academic_year)->first();
+
+        //get course
+        $get_course =DB::table('courses as c')
+        ->leftJoin('departments as d', 'd.id', 'c.department_id')
+        ->leftJoin('users as u', 'u.department_id', 'd.id')
+        ->select('c.*', 'd.department_description', 'd.department_name', 'u.name as dean_name' )
+        ->where('c.id', $user->course_id)->first();
+        
+        //get chairperson
+        $get_chair = DB::table('users')->select('name')->where('course_id', $user->course_id)->first();
+
+          //administrative Load Units count
+        $administrative_faculty_load = AdministrativeLoad::where('user_id', $faculty_id)
+        ->sum('units');
+
+        //Research Load  Units Count
+        $research_faculty_load = ResearchLoad::where('user_id', $faculty_id)
+        ->sum('units');
+
+        // get admin load
+        $get_admin_load = AdministrativeLoad::where('user_id', $faculty_id)->get();
+        
+        $get_research_load = ResearchLoad::where('user_id', $faculty_id)->first();
+
+
+         return inertia("Chairperson/FacultyLoading/Print", [
+            'faculty_id'    => $faculty_id,
+            'faculty_info'  => $query_faculty,
+            'facultyLoad'   => $faculty_load_query,
+            'academic_year' => $get_academic_year,
+            'department'    => $get_course,
+            'chair'         => $get_chair,
+            'admin_load'    =>$get_admin_load,
+            'research_load' => $get_research_load,
+            'administrative_faculty_load' => $administrative_faculty_load,
+            'research_faculty_load' => $research_faculty_load,
+            'success'       => session('success')
+        ]);
+
     }
 }

@@ -9,6 +9,11 @@ class ResearchLoad extends Model
 {
     use HasFactory;
 
-
+    protected $fillable = 
+    [
+        'load_desc',
+        'units',
+        'user_id'
+    ];
    
 }
