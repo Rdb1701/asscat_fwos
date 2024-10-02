@@ -19,7 +19,8 @@ export default function FacultyLoading({
     sections,
     facultyLoad,
     administrative_faculty_load,
-    research_faculty_load
+    research_faculty_load,
+    employment_status
 }) {
     const { data, setData, errors, post } = useForm({
         user_id: faculty_id || "",
@@ -147,7 +148,7 @@ export default function FacultyLoading({
                 }, 1000);
             },
             onError: (errors) => {
-                console.error("Error Inserting Data", errors);
+                Swal.fire(errors.user_id, '','error');
             }
         });
     };
@@ -189,7 +190,7 @@ export default function FacultyLoading({
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                        Faculty Name: {faculty_info.name} ({faculty_info.user_code_id})
+                        Faculty Name: {faculty_info.name} ({faculty_info.user_code_id}) ({employment_status && employment_status.employment_status ? employment_status.employment_status : ""})
                     </h2>
                 </div>
             }
@@ -211,9 +212,11 @@ export default function FacultyLoading({
                     }
                 }
             `}</style>
-
+            
+           
             <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                {employment_status && employment_status.employment_status === "Full-Time" && (
                     <div className="flex flex-col md:flex-row gap-6 py-2">
                         {/* Left Column */}
                         <div className="w-full md:w-1/2">
@@ -312,6 +315,7 @@ export default function FacultyLoading({
                             </div>
                         </div>
                     </div>
+                  )}
                     <div className="flex flex-col md:flex-row gap-6">
                         {/* Left Column */}
                         <div className="w-full md:w-1/2">
@@ -345,7 +349,7 @@ export default function FacultyLoading({
                                                     <div>
                                                         <InputLabel
                                                             htmlFor="sub"
-                                                            value="Subject Code | Description | LEC | LAB | UNITS | "
+                                                            value="Subject Code | Description | LEC | LAB "
                                                             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                                                         />
                                                         <select
@@ -358,7 +362,7 @@ export default function FacultyLoading({
                                                             <option value="" hidden>Select Subject</option>
                                                             {subjects.map((sub) => (
                                                                 <option key={sub.id} value={sub.id}>
-                                                                    {sub.course_code} | {sub.descriptive_title} | {sub.lec} | {sub.lab} | {sub.units}
+                                                                    {sub.course_code} | {sub.descriptive_title} | {sub.lec} | {sub.lab} 
                                                                 </option>
                                                             ))}
                                                         </select>
@@ -522,11 +526,11 @@ export default function FacultyLoading({
                                         </div>
                                         <div className="mt-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                                             <div className="p-6 text-gray-900 dark:text-gray-100">
-                                                <h3 className="font-semibold text-lg mb-4">Total Loads for {school_year} : {semester}</h3>
                                                 <p>
                                                     Faculty Units: {semesterTotalUnits} | 
-                                                    Administrative Load: {administrative_faculty_load} | 
-                                                    Research Load: {research_faculty_load}
+                                                    Administrative Load Units: {administrative_faculty_load} | 
+                                                    Research Load Units: {research_faculty_load} |
+                                                    Total Units: {(parseFloat(semesterTotalUnits) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)).toFixed(2)}
                                                 </p>
                                             </div>
                                         </div>

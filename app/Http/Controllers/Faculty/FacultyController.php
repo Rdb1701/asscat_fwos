@@ -22,9 +22,10 @@ class FacultyController extends Controller
         $user = Auth::user();
         $query = DB::table('users as u')
             ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
+            ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
             ->leftJoin('departments as d', 'd.id', 'ud.department_id')
             ->leftJoin('courses as c', 'c.department_id', 'd.id')
-            ->select('u.*', 'ud.user_code_id')
+            ->select('u.*', 'ud.user_code_id', 'ue.employment_status')
             ->where('c.id', $user->course_id)
             ->get();
 

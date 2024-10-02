@@ -161,7 +161,7 @@ export default function PrintableCourseOffering({
                                             <th>No. of Units</th>
                                             <th colSpan={2}>No. of Hour/Week</th>
                                             <th>Pre-requisite</th>
-                                            <th>Name of Instructor (LN, FN, MI.)</th>
+                                            <th>Name of Instructor</th>
                                         </tr>
                                         <tr>
                                             <th></th>
@@ -182,7 +182,7 @@ export default function PrintableCourseOffering({
                                                 <td>{cur.lec}</td>
                                                 <td>{cur.lab}</td>
                                                 <td>{cur.pre_requisite || "None"}</td>
-                                                <td></td>
+                                                <td>{cur.faculty_name}</td>
                                             </tr>
                                         ))}
                                     </tbody>

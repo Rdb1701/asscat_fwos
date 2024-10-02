@@ -8,11 +8,11 @@ import { FaTrash, FaEdit, FaPlus } from "react-icons/fa";
 import Swal from "sweetalert2";
 
 export default function Index({ auth, admin_load, name, code, success }) {
-    useEffect(() => {
-        $(document).ready(function () {
-            $("#departmentTable").DataTable();
-        });
-    }, []);
+    // useEffect(() => {
+    //     $(document).ready(function () {
+    //         $("#departmentTable").DataTable();
+    //     });
+    // }, []);
 
     const handleDelete = (ad) => {
         Swal.fire({

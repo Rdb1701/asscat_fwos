@@ -22,9 +22,21 @@ class StoreAdministrativeLoadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "load_desc"       =>['required','max:255'],
-            'units'           => ['required','max:255'],
-            'user_id'         => ['required','max:255']
-         ];
+            "load_desc"  => ['required', 'max:255'],
+            'units'      => ['required', 'max:255'],
+            'user_id'    => ['required', 'unique:administrative_loads,user_id', 'max:255']
+        ];
+    }
+
+    /**
+     * Get the custom error messages for the validation rules.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'user_id.unique' => 'You can only add one Administrative load per faculty.'
+        ];
     }
 }

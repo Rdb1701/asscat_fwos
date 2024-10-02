@@ -85,48 +85,81 @@ class FacultyLoadController extends Controller
 
         //administrative Load Units count
         $administrative_load = AdministrativeLoad::where('user_id', $request->user_id)
-        ->sum('units');
+            ->sum('units');
 
         //Research Load  Units Count
         $research_load = ResearchLoad::where('user_id', $request->user_id)
-        ->sum('units');
+            ->sum('units');
+
+        // IF PART TIME
+
+        $part_time_hour = DB::table('faculty_loads as fl')
+            ->leftJoin('curricula as cur', 'cur.id', 'fl.curriculum_id')
+            ->where('cur.academic_id', $request->academic)
+            ->where('fl.user_id', $request->user_id)
+            ->sum('fl.contact_hours');
 
         $total_admin_research_load = $administrative_load + $research_load;
 
 
-        //check research Load Units
-        // $research_load_units = DB::table('')
+       
+        //IF FULLTIME
+        $status = $query_faculty->employment_status;
+        $maxUnitsFullTime = 27;
+        $maxHoursPartTime = 15;
+        $maxHoursCOS = 30;
+        $successMessage = 'Successfully Added Faculty Load!';
+        $exceedUnitsMessage = 'Adding this subject will exceed the maximum unit load of ';
 
-        if ($query_faculty->employment_status == "Full-Time") {
-            // Check if faculty has reached the maximum unit load after adding the new subject
-            if (($count_units_per_faculty + $new_curriculum_units + $total_admin_research_load) > 27) {
+        switch ($status) {
+            case "Full-Time":
+                $totalUnits = $count_units_per_faculty + $new_curriculum_units + $total_admin_research_load;
+
+                if ($totalUnits >= $maxUnitsFullTime) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $exceedUnitsMessage . $maxUnitsFullTime . ' units.',
+                    ]);
+                }
+
+                if ($count_preparations >= 4 && !$curriculum_id_exists && $totalUnits <= $maxUnitsFullTime) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Faculty has reached the maximum number of preparations (4).',
+                    ]);
+                }
+
+                FacultyLoad::create($data);
+                return response()->json(['success' => true, 'message' => $successMessage]);
+
+            case "Part-Time":
+                if ($part_time_hour >= $maxHoursPartTime) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Adding this subject will exceed the maximum ' . $maxHoursPartTime . ' Hours for Part Time Instructors.',
+                    ]);
+                }
+
+                FacultyLoad::create($data);
+                return response()->json(['success' => true, 'message' => $successMessage]);
+
+            case "COS":
+                if ($part_time_hour >= $maxHoursCOS) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Adding this subject will exceed the maximum ' . $maxHoursCOS . ' Hours for COS Instructors.',
+                    ]);
+                }
+
+                FacultyLoad::create($data);
+                return response()->json(['success' => true, 'message' => $successMessage]);
+
+            default:
                 return response()->json([
                     'success' => false,
-                    'message' => 'Adding this subject will exceed the maximum unit load of 27 units.',
+                    'message' => 'Cannot be added at this moment.',
                 ]);
-            }
-
-            // Check for preparations count
-            if ($count_preparations >= 4 && !$curriculum_id_exists && ($count_units_per_faculty + $new_curriculum_units + $total_admin_research_load) <= 27) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Faculty has reached the maximum number of preparations (4).',
-                ]);
-            }
-
-
-            FacultyLoad::create($data);
-            return response()->json([
-                'success' => true,
-                'message' => 'Successfully Added Faculty Load!',
-            ]);
         }
-
-        // Additional logic can be added for other employment statuses like Part-Time, Administrative, etc.
-        return response()->json([
-            'success' => false,
-            'message' => 'Only Full-Time faculty can be added at this moment.',
-        ]);
     }
 
 
@@ -182,8 +215,6 @@ class FacultyLoadController extends Controller
         //get all section
         $section = DB::table('sections')->select('*')->get();
 
-
-
         //faculty_load view
         $faculty_load_query = DB::table('faculty_loads as fl')
             ->leftJoin('curricula as cur', 'cur.id', 'fl.curriculum_id')
@@ -214,13 +245,14 @@ class FacultyLoadController extends Controller
 
         //administrative Load Units count
         $administrative_faculty_load = AdministrativeLoad::where('user_id', $faculty_id)
-        ->sum('units');
+            ->sum('units');
 
         //Research Load  Units Count
         $research_faculty_load = ResearchLoad::where('user_id', $faculty_id)
-        ->sum('units');
+            ->sum('units');
 
-            
+        $get_user_employment_status = DB::table('users_employment')->select('employment_status')->where('user_id', $faculty_id)->first();
+
 
         return inertia("Chairperson/FacultyLoading/FacultyView", [
             'faculty_id'    => $faculty_id,
@@ -229,6 +261,7 @@ class FacultyLoadController extends Controller
             'faculty_info'  => $query_faculty,
             'facultyLoad'   => $faculty_load_query,
             'administrative_faculty_load' => $administrative_faculty_load,
+            'employment_status' => $get_user_employment_status,
             'research_faculty_load' => $research_faculty_load,
             'success'       => session('success')
         ]);
@@ -249,91 +282,91 @@ class FacultyLoadController extends Controller
 
 
     //print faculty laod
-    public function getPrint(Request $request){
+    public function getPrint(Request $request)
+    {
 
         $user = Auth::user();
         $academic_year  = $request->input('academic_year_filter');
         $faculty_id        = $request->input('user_id');
 
 
-         //faculty data
-         $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
-         ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
-         ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
-         ->where('u.id', $faculty_id)
-         ->first();
+        //faculty data
+        $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
+            ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
+            ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
+            ->where('u.id', $faculty_id)
+            ->first();
 
 
 
-     //faculty_load view
-     $faculty_load_query = DB::table('faculty_loads as fl')
-         ->leftJoin('curricula as cur', 'cur.id', 'fl.curriculum_id')
-         ->leftJoin('administrative_loads as admin', 'admin.user_id', 'fl.user_id')
-         ->leftJoin('research_loads as rl', 'rl.user_id', 'fl.user_id')
-         ->leftJoin('sections as s', 's.id', 'fl.section')
-         ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
-         ->select(
-             'fl.*',
-             'cur.course_code',
-             'cur.descriptive_title',
-             'cur.units',
-             'cur.lec',
-             'cur.lab',
-             'cur.cmo',
-             'cur.hei',
-             'cur.pre_requisite',
-             'admin.load_desc as admin_load',
-             'admin.units as admin_units',
-             'rl.load_desc as research_load',
-             'rl.units as research_units',
-             's.section_name',
-             'acad.school_year',
-             'acad.semester'
-         )
-         ->where('fl.user_id', $faculty_id)
-         ->where('cur.academic_id', $academic_year)
-         ->get();
-        
-         //get academic year
-        $get_academic_year = DB::table('academic_years')->select('*')->where('id',$academic_year)->first();
+        //faculty_load view
+        $faculty_load_query = DB::table('faculty_loads as fl')
+            ->leftJoin('curricula as cur', 'cur.id', 'fl.curriculum_id')
+            ->leftJoin('administrative_loads as admin', 'admin.user_id', 'fl.user_id')
+            ->leftJoin('research_loads as rl', 'rl.user_id', 'fl.user_id')
+            ->leftJoin('sections as s', 's.id', 'fl.section')
+            ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
+            ->select(
+                'fl.*',
+                'cur.course_code',
+                'cur.descriptive_title',
+                'cur.units',
+                'cur.lec',
+                'cur.lab',
+                'cur.cmo',
+                'cur.hei',
+                'cur.pre_requisite',
+                'admin.load_desc as admin_load',
+                'admin.units as admin_units',
+                'rl.load_desc as research_load',
+                'rl.units as research_units',
+                's.section_name',
+                'acad.school_year',
+                'acad.semester'
+            )
+            ->where('fl.user_id', $faculty_id)
+            ->where('cur.academic_id', $academic_year)
+            ->get();
+
+        //get academic year
+        $get_academic_year = DB::table('academic_years')->select('*')->where('id', $academic_year)->first();
 
         //get course
-        $get_course =DB::table('courses as c')
-        ->leftJoin('departments as d', 'd.id', 'c.department_id')
-        ->leftJoin('users as u', 'u.department_id', 'd.id')
-        ->select('c.*', 'd.department_description', 'd.department_name', 'u.name as dean_name' )
-        ->where('c.id', $user->course_id)->first();
-        
-        //get chairperson
-        $get_chair = DB::table('users')->select('name')->where('course_id', $user->course_id)->first();
+        $get_course = DB::table('courses as c')
+            ->leftJoin('departments as d', 'd.id', 'c.department_id')
+            ->leftJoin('users as u', 'u.department_id', 'd.id')
+            ->select('c.*', 'd.department_description', 'd.department_name', 'u.name as dean_name')
+            ->where('c.id', $user->course_id)->first();
 
-          //administrative Load Units count
+        //get chairperson
+        $get_chair = DB::table('users')->select('name')->where('course_id', $user->course_id)->where('role', 'Chairperson')->first();
+
+        //administrative Load Units count
         $administrative_faculty_load = AdministrativeLoad::where('user_id', $faculty_id)
-        ->sum('units');
+            ->sum('units');
 
         //Research Load  Units Count
         $research_faculty_load = ResearchLoad::where('user_id', $faculty_id)
-        ->sum('units');
+            ->sum('units');
 
         // get admin load
-        $get_admin_load = AdministrativeLoad::where('user_id', $faculty_id)->get();
-        
+        $get_admin_load = AdministrativeLoad::where('user_id', $faculty_id)->first();
+
         $get_research_load = ResearchLoad::where('user_id', $faculty_id)->first();
 
 
-         return inertia("Chairperson/FacultyLoading/Print", [
+        return inertia("Chairperson/FacultyLoading/Print", [
             'faculty_id'    => $faculty_id,
             'faculty_info'  => $query_faculty,
             'facultyLoad'   => $faculty_load_query,
             'academic_year' => $get_academic_year,
             'department'    => $get_course,
             'chair'         => $get_chair,
-            'admin_load'    =>$get_admin_load,
+            'admin_load'    => $get_admin_load,
             'research_load' => $get_research_load,
             'administrative_faculty_load' => $administrative_faculty_load,
             'research_faculty_load' => $research_faculty_load,
             'success'       => session('success')
         ]);
-
     }
 }

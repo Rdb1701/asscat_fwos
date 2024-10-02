@@ -227,7 +227,7 @@ class CurriculumController extends Controller
             ->where('c.id', $course)->first();
 
         //get chairperson Name
-        $get_chairperson = DB::table('users')->select('name as chairperson_name')->where('course_id', $course)->first();
+        $get_chairperson = DB::table('users')->select('name as chairperson_name')->where('course_id', $course)->where('role', 'Chairperson')->first();
 
         //get curriculum
         $search = DB::table('curricula as circ')

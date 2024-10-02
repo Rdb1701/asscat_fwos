@@ -8,6 +8,7 @@ use App\Http\Requests\StoreChairpersonRequest;
 use App\Http\Requests\UpdateChairpersonRequest;
 use App\Http\Resources\ChairpersonResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Password;
 
@@ -52,8 +53,37 @@ class ChairpersonController extends Controller
      */
     public function store(StoreChairpersonRequest $request)
     {
+        $user = Auth::user();
         $data = $request->validated();
-        User::create($data);
+        $chairperson =  User::create($data);
+
+
+     if ($chairperson) {
+         $timestamp = time();
+         $lastSixDigits = substr($timestamp, -6);
+
+         $user_code = substr_replace($lastSixDigits, '-', 4, 0);
+
+         //insert to User Department
+         DB::table('users_deparment')->insert([
+             'user_code_id'  => $user_code,
+             'position'      => "Faculty",
+             'department_id' => $user->department_id,
+             'user_id'       => $chairperson->id,
+         ]);
+
+         //insert for user employment
+         DB::table('users_employment')->insert([
+             'employment_classification' => "Teaching",
+             'employment_status'         => "Full-Time",
+             'regular_load'              => "21",
+             'extra_load'                => "6",
+             'user_id'                   => $chairperson->id,
+         ]);
+     } else {
+         return to_route('faculty_file.index')
+             ->with('success', 'Cannot be Created');
+     }
 
         return to_route('chairAccount.index')
             ->with('success', 'Successfully Created');

@@ -113,6 +113,7 @@ export default function Index({ auth, faculty, success }) {
                                             </th>
                                             <th className="px-4 py-3">Name</th>
                                             <th className="px-4 py-3">Email</th>
+                                            <th className="px-4 py-3">Employment</th>
                                             <th className="px-4 py-3">Action</th>
                                         </tr>
                                     </thead>
@@ -133,6 +134,9 @@ export default function Index({ auth, faculty, success }) {
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {fac.email}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    {fac.employment_status}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex space-x-2">

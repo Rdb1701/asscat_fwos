@@ -80,7 +80,7 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
         <table className="faculty-load-table">
           <thead>
             <tr>
-              <th>Name of Instructor (LN, FN, MI)</th>
+              <th>Name of Instructor</th>
               <th>Course No.</th>
               <th>Descriptive Title</th>
               <th>Program/Yr/Sec</th>
@@ -110,8 +110,6 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
                 <td>{parseFloat(course.lec) + parseFloat(course.lab)}</td>
               </tr>
             ))}
-          </tbody>
-       
             <tr>
               <td colSpan={4} className='text-right total-row'>Total Academic Load</td>
               <td>{totalAcademicLoad}</td>
@@ -120,7 +118,7 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
               <td>{facultyLoad.reduce((acc, course) => acc + (parseFloat(course.lec) + (parseFloat(course.lab) * 0.75)), 0).toFixed(2)}</td>
               <td>{facultyLoad.reduce((acc, course) => acc + parseFloat(course.lec) + parseFloat(course.lab), 0)}</td>
             </tr>
-         
+          </tbody>      
 
             <thead>
             <tr>
@@ -128,14 +126,17 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
             </tr>
           </thead>
           <tbody>
+         
             <tr>
-              <td className='text-left' colSpan={4}>BSIT Program Chairperson</td>
-              <td>{administrative_faculty_load}</td>
+              <td className='text-left' colSpan={4}>{admin_load && admin_load.load_desc ? admin_load.load_desc : ""}</td>
+              <td>{research_faculty_load}</td>
               <td>0</td>
               <td>0</td>
-              <td>0</td>
-              <td>{administrative_faculty_load}</td>
+              <td>{research_faculty_load}</td>
+              <td>{research_faculty_load}</td>
             </tr>
+       
+           
             <tr>
               <td className='text-right total-row' colSpan={4}>Total Administrative Load</td>
               <td>{administrative_faculty_load}</td>
@@ -152,7 +153,7 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
           </thead>
           <tbody>
             <tr>
-              <td colSpan={4} className='text-left'>{research_load.load_desc}</td>
+              <td colSpan={4} className='text-left'>{research_load && research_load.load_desc ? research_load.load_desc : ""}</td>
               <td>{research_faculty_load}</td>
               <td>0</td>
               <td>0</td>
@@ -164,7 +165,7 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
               <td>{totalLoad.toFixed(2)}</td>
               <td>{facultyLoad.reduce((acc, course) => acc + parseFloat(course.lec), 0)}</td>
               <td>{facultyLoad.reduce((acc, course) => acc + parseFloat(course.lab), 0)}</td>
-              <td>{(parseFloat(totalAcademicLoad) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)).toFixed(2)}</td>
+              <td>{(facultyLoad.reduce((acc, course) => acc + (parseFloat(course.lec) + (parseFloat(course.lab) * 0.75)), 0) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)).toFixed(2)}</td>
               <td>{facultyLoad.reduce((acc, course) => acc + parseFloat(course.lec) + parseFloat(course.lab), 0) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)}</td>
             </tr>
           </tbody>
@@ -174,14 +175,14 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
           <div className="signature-line">
             <p>Prepared by:</p>
             <br/>
-            <p className="name">{department.dean_name.toUpperCase()}</p>
+            <p className="name">{chair.name.toUpperCase()}</p>
             <p className="position">Chairperson, {department.course_name.toUpperCase()}</p>
             <p className="date">Date: ___/___/___</p>
           </div>
           <div className="signature-line">
             <p>Checked by:</p>
             <br/>
-            <p className="name">{chair.name.toUpperCase()}</p>
+            <p className="name">{department.dean_name.toUpperCase()}</p>
             <p className="position">Dean, {department.department_name}</p>
             <p className="date">Date: ___/___/___</p>
           </div>

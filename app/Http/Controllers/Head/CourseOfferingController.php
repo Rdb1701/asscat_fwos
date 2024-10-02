@@ -165,6 +165,7 @@ class CourseOfferingController extends Controller
             ->where('co.year_level', $year_level)
             ->where('co.academic_id', $school_year)
             ->orderBy('s.section_name', 'asc')
+            ->orderBy('cur.course_code')
             ->get();
 
             // Check if no data is found
@@ -178,7 +179,6 @@ class CourseOfferingController extends Controller
             'course_id'       => $course,
             'academic_id'     => $school_year,
             'year_level'      => $year_level
-
 
         ]);
     }
@@ -212,20 +212,26 @@ class CourseOfferingController extends Controller
             ->leftJoin('courses as c', 'c.id', 'co.course_id')
             ->leftJoin('sections as s', 's.id', 'co.section_id')
             ->leftJoin('curricula as cur', 'cur.course_id', 'c.id')
+            ->leftJoin('faculty_loads as fl', 'fl.curriculum_id', 'cur.id')
+            ->leftJoin('users as u', 'u.id', 'fl.user_id')
             ->select(
                 'cur.*',
                 'c.course_name',
                 'cur.year_level',
                 's.section_name',
                 'ay.school_year',
-                'ay.semester'
+                'ay.semester',
+                'u.name as faculty_name',
+                
             )
+            ->distinct()
             ->where('co.course_id', $course)
             ->where('cur.academic_id', $school_year)
             ->where('cur.year_level', $year_level)
             ->where('co.year_level', $year_level)
             ->where('co.academic_id', $school_year)
             ->orderBy('s.section_name', 'asc')
+            ->orderBy('cur.course_code')
             ->get();
 
             // Check if no data is found
