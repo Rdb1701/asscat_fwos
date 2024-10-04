@@ -4,8 +4,14 @@ import Dropdown from "@/Components/Dropdown";
 import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link } from "@inertiajs/react";
-import { FaUserTie, FaCalendar, FaGraduationCap, FaBook, FaClipboardList    } from "react-icons/fa";
-import { FaSchool, FaClipboardCheck, FaBookOpenReader  } from "react-icons/fa6";
+import {
+    FaUserTie,
+    FaCalendar,
+    FaGraduationCap,
+    FaBook,
+    FaClipboardList,
+} from "react-icons/fa";
+import { FaSchool, FaClipboardCheck, FaBookOpenReader } from "react-icons/fa6";
 import { MdClass } from "react-icons/md";
 import { GiTeacher } from "react-icons/gi";
 
@@ -18,8 +24,8 @@ export default function Authenticated({ user, header, children }) {
     const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-            <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 pt-16">
+            <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 fixed top-0 left-0 right-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
@@ -44,7 +50,9 @@ export default function Authenticated({ user, header, children }) {
 
                                     <NavLink
                                         href={route("department.index")}
-                                        active={route().current("department.index")}
+                                        active={route().current(
+                                            "department.index"
+                                        )}
                                     >
                                         <FaSchool
                                             style={{ marginRight: "8px" }}
@@ -54,7 +62,9 @@ export default function Authenticated({ user, header, children }) {
 
                                     <NavLink
                                         href={route("deanAccount.index")}
-                                        active={route().current("deanAccount.index")}
+                                        active={route().current(
+                                            "deanAccount.index"
+                                        )}
                                     >
                                         <FaUserTie
                                             style={{ marginRight: "8px" }}
@@ -63,13 +73,27 @@ export default function Authenticated({ user, header, children }) {
                                     </NavLink>
 
                                     <NavLink
-                                        href={route("registrar.dashboard")}
-                                        active={route().current("dashboard")}
+                                        href={route("facultyload.index")}
+                                        active={route().current(
+                                            "facultyload.index"
+                                        )}
                                     >
-                                        <FaClipboardCheck
+                                        <FaClipboardList
                                             style={{ marginRight: "8px" }}
                                         />{" "}
-                                        Reports
+                                        Faculty Loading
+                                    </NavLink>
+
+                                    <NavLink
+                                        href={route("course_offer.index")}
+                                        active={route().current(
+                                            "course_offer.index"
+                                        )}
+                                    >
+                                        <FaBook
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
+                                        Course Offering
                                     </NavLink>
                                 </div>
                             )}
@@ -78,30 +102,50 @@ export default function Authenticated({ user, header, children }) {
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                     <NavLink
                                         href={route("dean.dashboard")}
-                                        active={route().current("dean.dashboard")}
+                                        active={route().current(
+                                            "dean.dashboard"
+                                        )}
                                     >
-                                       <FaGraduationCap
+                                        <FaGraduationCap
                                             style={{ marginRight: "8px" }}
-                                        />{" "} Programs
+                                        />{" "}
+                                        Programs
                                     </NavLink>
 
                                     <NavLink
                                         href={route("chairAccount.index")}
-                                        active={route().current("chairAccount.index")}
+                                        active={route().current(
+                                            "chairAccount.index"
+                                        )}
                                     >
-                                       <FaUserTie
+                                        <FaUserTie
                                             style={{ marginRight: "8px" }}
-                                        />{" "} Chairperson Account
+                                        />{" "}
+                                        Chairperson Account
                                     </NavLink>
 
                                     <NavLink
-                                        // href={route("dean.dashboard")}
-                                        // active={route().current("dean.dashboard")}
+                                        href={route("facultyload.index")}
+                                        active={route().current(
+                                            "facultyload.index"
+                                        )}
                                     >
-                                        <FaClipboardCheck
+                                        <FaClipboardList
                                             style={{ marginRight: "8px" }}
                                         />{" "}
-                                        Reports
+                                        Faculty Loading Reports
+                                    </NavLink>
+
+                                    <NavLink
+                                        href={route("course_offer.index")}
+                                        active={route().current(
+                                            "course_offer.index"
+                                        )}
+                                    >
+                                        <FaBook
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
+                                        Course Offering Reports
                                     </NavLink>
                                 </div>
                             )}
@@ -110,9 +154,11 @@ export default function Authenticated({ user, header, children }) {
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                     <NavLink
                                         href={route("chairperson.dashboard")}
-                                        active={route().current("chairperson.dashboard")}
+                                        active={route().current(
+                                            "chairperson.dashboard"
+                                        )}
                                     >
-                                    <MdClass
+                                        <MdClass
                                             style={{ marginRight: "8px" }}
                                         />{" "}
                                         Class Management
@@ -120,9 +166,11 @@ export default function Authenticated({ user, header, children }) {
 
                                     <NavLink
                                         href={route("curriculum.index")}
-                                        active={route().current("curriculum.index")}
+                                        active={route().current(
+                                            "curriculum.index"
+                                        )}
                                     >
-                                     <FaBookOpenReader
+                                        <FaBookOpenReader
                                             style={{ marginRight: "8px" }}
                                         />{" "}
                                         Curriculum File
@@ -130,33 +178,38 @@ export default function Authenticated({ user, header, children }) {
 
                                     <NavLink
                                         href={route("faculty_file.index")}
-                                        active={route().current("faculty_file.index")}
+                                        active={route().current(
+                                            "faculty_file.index"
+                                        )}
                                     >
-                                    <GiTeacher
+                                        <GiTeacher
                                             style={{ marginRight: "8px" }}
                                         />{" "}
                                         Faculty File
                                     </NavLink>
                                     <NavLink
                                         href={route("faculty_load.index")}
-                                        active={route().current("faculty_load.index")}
+                                        active={route().current(
+                                            "faculty_load.index"
+                                        )}
                                     >
-                                     <FaClipboardList
+                                        <FaClipboardList
                                             style={{ marginRight: "8px" }}
                                         />{" "}
                                         Faculty Loading
-                                    </NavLink>  
+                                    </NavLink>
 
                                     <NavLink
                                         href={route("course_offering.index")}
-                                        active={route().current("course_offering.index")}
+                                        active={route().current(
+                                            "course_offering.index"
+                                        )}
                                     >
-                                     <FaBook
+                                        <FaBook
                                             style={{ marginRight: "8px" }}
                                         />{" "}
                                         Course Offering
-                                    </NavLink>  
-                                       
+                                    </NavLink>
                                 </div>
                             )}
 

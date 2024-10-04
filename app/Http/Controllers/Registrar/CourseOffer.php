@@ -1,26 +1,38 @@
 <?php
 
-namespace App\Http\Controllers\Head;
+namespace App\Http\Controllers\Registrar;
 
 use App\Http\Controllers\Controller;
 use App\Models\CourseOffering;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreCourseOfferingRequest;
 use App\Http\Requests\UpdateCourseOfferingRequest;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class CourseOfferingController extends Controller
+class CourseOffer extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $user   = Auth::user();
-        $query  = DB::table('academic_years')->select('*')->get();
-        $query2 = DB::table('courses')->select('*')->where('id', $user->course_id)->get();
+    {   
+        $user = Auth::user();
 
+        $query  = DB::table('academic_years')->select('*')->get();
+        $query2 = "";
+
+        if($user->role == 'Registrar')
+        {
+         $query2 = DB::table('courses')->select('*')->get();
+        }
+
+        if($user->role == 'Dean')
+        {
+         $query2 = DB::table('courses')->select('*')->where('department_id', $user->department_id)->get();
+        }
+       
+        
         $course_offering = DB::table('course_offerings as co')
             ->leftJoin('academic_years as ay', 'ay.id', 'co.academic_id')
             ->leftJoin('courses as c', 'c.id', 'co.course_id')
@@ -32,11 +44,11 @@ class CourseOfferingController extends Controller
                 'c.course_name',
                 's.section_name'
             )
-            ->where('c.id', $user->course_id)
             ->get();
+        
 
 
-        return inertia("Chairperson/CourseOffering/Index", [
+        return inertia("Registrar/CourseOffering/Index", [
             'academic' => $query,
             'courses'  => $query2,
             'courseOffering' => $course_offering,
@@ -54,7 +66,7 @@ class CourseOfferingController extends Controller
         $section  = DB::table('sections')->select('*')->get();
 
 
-        return inertia("Chairperson/CourseOffering/Add", [
+        return inertia("Registrar/CourseOffering/Add", [
             'academic' => $academic,
             'course'   => $course,
             'section'  => $section
@@ -111,9 +123,9 @@ class CourseOfferingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CourseOffering $course_offering)
+    public function destroy(CourseOffering $course_offer)
     {
-        $course_offering->delete();
+        $course_offer->delete();
 
         return to_route('course_offering.index');
     }
@@ -171,7 +183,7 @@ class CourseOfferingController extends Controller
             // Check if no data is found
         $noDataFound = $course_offering->isEmpty();
 
-        return inertia("Chairperson/CourseOffering/Search",[
+        return inertia("Registrar/CourseOffering/Search",[
             'noDataFound'     => $noDataFound,
             'courseOfferings' =>$course_offering,
             'school_year'     => $get_school_year,
@@ -213,15 +225,14 @@ class CourseOfferingController extends Controller
             ->leftJoin('sections as s', 's.id', 'co.section_id')
             ->leftJoin('curricula as cur', 'cur.course_id', 'c.id')
             ->leftJoin('faculty_loads as fl', 'fl.curriculum_id', 'cur.id')
-      
             ->select(
                 'cur.*',
                 'c.course_name',
                 'cur.year_level',
                 's.section_name',
                 'ay.school_year',
-                'ay.semester'
-                
+                'ay.semester',
+
             )
             ->distinct()
             ->where('co.course_id', $course)
@@ -236,7 +247,7 @@ class CourseOfferingController extends Controller
             // Check if no data is found
         $noDataFound = $course_offering->isEmpty();
 
-        return inertia("Chairperson/CourseOffering/Print",[
+        return inertia("Registrar/CourseOffering/Print",[
             'noDataFound'     => $noDataFound,
             'courseOfferings' =>$course_offering,
             'school_year'     => $get_school_year,

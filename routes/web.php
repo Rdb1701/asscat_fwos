@@ -13,6 +13,8 @@ use App\Http\Controllers\Head\CurriculumController;
 use App\Http\Controllers\Head\ResearchLoadController;
 use App\Http\Controllers\Head\SectionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Registrar\CourseOffer;
+use App\Http\Controllers\Registrar\FacultyLoading;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +55,7 @@ Route::middleware('auth', 'registrar')->group(function () {
 
     Route::put('dean/{dean}/changepassword', [DeanController::class, 'changepassword'])
         ->name('dean_account.changepassword');
+
 });
 
 
@@ -131,6 +134,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    //Course Offering
+    Route::resource('course_offer', CourseOffer::class);
+
+    Route::get('course_offerSearch', [CourseOffer::class, 'getSearch'])->name('getSearch.courseOffer');
+
+    Route::get('course_offerPrint', [CourseOffer::class, 'getPrint'])->name('getPrint.courseOffer');
+
+
+    //Faculty Load
+    Route::resource('facultyload', FacultyLoading::class);
+
+    Route::get('Facultyload/view', [FacultyLoading::class, 'facultyView'])->name('facultyView.view');
+
+    Route::get('Facultyload/change', [FacultyLoading::class, 'change'])->name('facultyload.change');
+
+    Route::get('facultyload_print', [FacultyLoading::class, 'getPrint'])->name('getPrint.facultyload');
+
+    Route::get('facultyAdminload', [FacultyLoading::class, 'admin_load_view'])->name('facultyload.view');
+
+    Route::get('facultyResearchload', [FacultyLoading::class, 'research_load_view'])->name('researchload.view');
+
 });
 
 require __DIR__ . '/auth.php';
