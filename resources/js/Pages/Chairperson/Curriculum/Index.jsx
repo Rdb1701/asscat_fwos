@@ -21,9 +21,11 @@ export default function Index({
 
     useEffect(() => {
         $(document).ready(function () {
-            $("#curTable").DataTable();
+            $("#curTable").DataTable({
+                pageLength: 100
+            });
         });
-    }, []);
+    }, [])
 
     const handleSearch = (e) => {
         e.preventDefault();

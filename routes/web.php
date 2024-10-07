@@ -6,6 +6,7 @@ use App\Http\Controllers\Dean\ProgramController;
 use App\Http\Controllers\DeanController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\Faculty\FacultyController;
+use App\Http\Controllers\FacultyUser\FacultyLoadingController;
 use App\Http\Controllers\Head\AdminLoadController;
 use App\Http\Controllers\Head\FacultyLoadController;
 use App\Http\Controllers\Head\CourseOfferingController;
@@ -124,9 +125,7 @@ Route::middleware('auth', 'chairperson')->group(function () {
 //FACULTY MIDDLEWARE
 Route::middleware('auth', 'faculty')->group(function () {
     //faculty auth dashboard inertia
-    Route::get('faculty/dashboard', function () {
-        return Inertia::render('Faculty/Dashboard');
-    })->name('faculty.dashboard');
+    Route::get('faculty/dashboard',[FacultyLoadingController::class, 'index'])->name('faculty.dashboard');
 });
 
 
