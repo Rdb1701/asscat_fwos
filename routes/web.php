@@ -16,6 +16,7 @@ use App\Http\Controllers\Head\SectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Registrar\CourseOffer;
 use App\Http\Controllers\Registrar\FacultyLoading;
+use App\Http\Controllers\SpecializationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -91,7 +92,10 @@ Route::middleware('auth', 'chairperson')->group(function () {
 
     Route::get('curriculum_print',[CurriculumController::class, 'getPrint'])->name('getPrint.curriculum');
 
-    Route::resource('faculty_file', FacultyController:: class);
+    Route::resource('faculty_file', FacultyController::class);
+
+    Route::post('faculty_specialization/{id}', [FacultyController::class, 'store_specialization'])->name('faculty_specialization.store');
+    Route::delete('faculty_specialization/{id}/{faculty_id}/destroy', [FacultyController::class, 'destroy_specialization'])->name('faculty_specialization.destroy');
 
     Route::put('faculty_file/{faculty_file}/changepassword', [FacultyController::class, 'changepassword'])
     ->name('faculty_account.changepassword');
@@ -119,6 +123,13 @@ Route::middleware('auth', 'chairperson')->group(function () {
     Route::get('facultyAdmin_load', [AdminLoadController::class, 'admin_load_view'])->name('faculty_load.view');
 
     Route::get('facultyResearch_load', [ResearchLoadController::class, 'research_load_view'])->name('research_load.view');
+
+
+    Route::resource('specialization', SpecializationController::class);
+
+
+    Route::post('/generate-faculty-loads', [FacultyLoadController::class, 'generateFacultyLoads'])->name('faculty_loads.generate');
+
 });
 
 

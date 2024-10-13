@@ -28,7 +28,6 @@ export default function Dashboard({
         
     });    
 
-    
     const [subjects, setSubjects] = useState([]);
 
     // Group the curriculum by year level and semester
@@ -38,8 +37,6 @@ export default function Dashboard({
         acc[key].push(cur);
         return acc;
     }, {});
-
-
 
      //PRINTING STUDY LOAD
      const handlePrint = (e) => {

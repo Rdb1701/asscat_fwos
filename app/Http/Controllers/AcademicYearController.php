@@ -19,7 +19,6 @@ class AcademicYearController extends Controller
         $academic_year = $query->get();
 
 
-
         return inertia("Registrar/AcademicYear/Index", [
             'academic_year' => AcademicResource::collection($academic_year),
             'success' => session('success')

@@ -24,17 +24,17 @@ class CurriculumController extends Controller
             ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
             ->leftJoin('courses as c', 'c.id', 'cur.course_id')
             ->leftJoin('departments as d', 'd.id', 'c.department_id')
+            ->leftJoin('specializations as s', 's.id', 'cur.specialization_id')
             ->select(
                 'cur.*',
                 'c.course_name',
                 'd.department_name',
                 'acad.school_year',
-                'acad.semester'
+                'acad.semester',
+                's.name as specialization_name'
             )
             ->where('cur.course_id', $user->course_id)
             ->get();
-
-
 
         $programs = DB::table('courses')
             ->select('*')
@@ -63,10 +63,13 @@ class CurriculumController extends Controller
             ->leftJoin('departments as d', 'd.id', 'c.department_id')
             ->select('c.*', 'd.department_name')
             ->get();
+        
+        $specialization = DB::table('specializations')->select('*')->get();
 
         return inertia("Chairperson/Curriculum/Add", [
-            'academic' => $academic,
-            'courses' => $course
+            'academic'       => $academic,
+            'courses'        => $course,
+            'specialization' => $specialization
         ]);
     }
 
@@ -129,11 +132,14 @@ class CurriculumController extends Controller
             ->leftJoin('departments as d', 'd.id', 'c.department_id')
             ->select('c.*', 'd.department_name')
             ->get();
+        
+        $specialization = DB::table('specializations')->select('*')->get();
 
         return inertia("Chairperson/Curriculum/Edit", [
             "curr_edit" => new CurriculumResource($curriculum),
             'academic' => $academic,
-            'courses' => $course
+            'courses' => $course,
+            'specialization' => $specialization
         ]);
     }
 

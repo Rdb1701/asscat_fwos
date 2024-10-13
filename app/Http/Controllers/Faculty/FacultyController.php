@@ -22,15 +22,25 @@ class FacultyController extends Controller
         $user = Auth::user();
         $query = DB::table('users as u')
             ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
-            ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
+            ->leftJoin('users_employments as ue', 'ue.user_id', 'u.id')
             ->leftJoin('departments as d', 'd.id', 'ud.department_id')
             ->leftJoin('courses as c', 'c.department_id', 'd.id')
-            ->select('u.*', 'ud.user_code_id', 'ue.employment_status')
+            ->leftJoin('user_specializations as us','us.user_id', 'u.id' )
+            ->leftJoin('specializations as sp', 'sp.id', 'us.specialization_id')
+            ->select(
+                'u.id',
+                'u.name',
+                'u.email',
+                'ud.user_code_id',
+                'ue.employment_status',
+                DB::raw('GROUP_CONCAT(sp.name SEPARATOR ", ") as specializations') // Combine specializations
+            )
             ->where('c.id', $user->course_id)
+            ->groupBy('u.id', 'u.name', 'u.email', 'ud.user_code_id', 'ue.employment_status') // Add all selected non-aggregated columns
             ->get();
-
+    
         return inertia("Chairperson/Faculty/Index", [
-            'faculty'  => FacultyResource::collection($query),
+            'faculty'  => $query,
             'success'  => session('success')
         ]);
     }
@@ -83,7 +93,7 @@ class FacultyController extends Controller
             ]);
 
             //insert for user employment
-            DB::table('users_employment')->insert([
+            DB::table('users_employments')->insert([
                 'employment_classification' => $request->employment_classification,
                 'employment_status'         => $request->employment_status,
                 'regular_load'              => $request->regular_load,
@@ -132,17 +142,28 @@ class FacultyController extends Controller
             ->where('user_id', $faculty_file->id)
             ->first();
         //user employment data
-        $employment = DB::table('users_employment')
+        $employment = DB::table('users_employments')
             ->where('user_id', $faculty_file->id)
             ->first();
+        
+        $specialization = DB::table('user_specializations as us')
+        ->leftJoin('specializations as s', 's.id', 'us.specialization_id')
+        ->select('us.*','s.name')
+        ->where('us.user_id',$faculty_file->id )
+        ->get();
 
+        $specialization_select = DB::table('specializations')
+        ->select('*')
+        ->get();
 
 
         return inertia('Chairperson/Faculty/Edit', [
             'program' => $query,
             'faculty_edit' => new FacultyResource($faculty_file),
             'user_department' => $department,
-            'user_employment' => $employment
+            'user_employment' => $employment,
+            'specializations' => $specialization,
+            'specialization_select' => $specialization_select
         ]);
     }
 
@@ -182,7 +203,7 @@ class FacultyController extends Controller
                 ]);
 
             //insert for user employment
-            DB::table('users_employment')
+            DB::table('users_employments')
                 ->where('user_id', $faculty_file->id)
                 ->update([
                     'employment_classification' => $request->employment_classification,
@@ -229,5 +250,33 @@ class FacultyController extends Controller
 
         return to_route('faculty_file.index')
             ->with('success', "Successfully Change Password");
+    }
+
+
+    public function store_specialization(Request $request, $id)
+    {
+       $request->validate([
+            'specialization' => ['required'],
+            'specialization.*' => ['exists:specializations,user_id']
+        ]);
+
+        DB::table('user_specializations')->insert([
+            'user_id' => $id,
+            'specialization_id' =>$request->specialization,
+            'created_at' => now(), 
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back();
+    }
+
+    public function destroy_specialization($id, $faculty_id)
+    {
+        DB::table('user_specializations')
+        ->where('id', $id)
+        ->where('user_id', $faculty_id)
+        ->delete();
+
+        return redirect()->back();
     }
 }

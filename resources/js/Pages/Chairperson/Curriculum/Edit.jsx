@@ -6,7 +6,7 @@ import { Head, Link, useForm } from "@inertiajs/react";
 import SelectInput from "@/Components/SelectInput";
 import { useState } from "react";
 
-export default function Add({ auth, academic, courses, curr_edit }) {
+export default function Add({ auth, academic, courses, curr_edit, specialization }) {
     const { data, setData, post, errors, reset } = useForm({
         course_code: curr_edit.data.course_code || "",
         descriptive_title: curr_edit.data.descriptive_title || "",
@@ -18,6 +18,7 @@ export default function Add({ auth, academic, courses, curr_edit }) {
         year_level: curr_edit.data.year_level ||"",
         course_id : curr_edit.data.course_id ||"",
         academic_id : curr_edit.data.academic_id ||"",
+        specialization_id : curr_edit.data.specialization_id || "",
         _method : "PUT"
     });
 
@@ -205,6 +206,23 @@ export default function Add({ auth, academic, courses, curr_edit }) {
                                             ))}
                                         </SelectInput>
                                         <InputError message={errors.academic_id} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel htmlFor="special_" value="Specilization" />
+                                        <SelectInput
+                                            id="special_"
+                                            name="specialization_id"
+                                            value={data.specialization_id}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("specialization_id", e.target.value)}
+                                        >
+                                            <option value="" hidden>Select Specialization</option>
+                                            <option value="" >None</option>
+                                            {specialization.map((spec)=>(
+                                            <option value={spec.id} >{spec.name}</option>
+                                            ))}
+                                        </SelectInput>
+                                        <InputError message={errors.specialization_id} className="mt-2" />
                                     </div>
                                 </div>
 

@@ -2,11 +2,13 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import SelectInput from "@/Components/SelectInput";
+import { FaTrash, FaEdit, FaPlus, FaKey } from "react-icons/fa";
+import Swal from 'sweetalert2';
 
-export default function Add({ auth, program, faculty_edit, user_department, user_employment }) {
-  const { data, setData, post, errors } = useForm({
+export default function Add({ auth, program, faculty_edit, user_department, user_employment, specializations, specialization_select }) {
+  const { data, setData, post,put, errors } = useForm({
     name: faculty_edit.data.name || "",
     email: faculty_edit.data.email || "",
     course_id: faculty_edit.data.course_id || "",
@@ -15,13 +17,38 @@ export default function Add({ auth, program, faculty_edit, user_department, user
     employment_status:  user_employment.employment_status || "",
     regular_load: user_employment.regular_load || "",
     extra_load: user_employment.extra_load || "",
-    _method : "PUT"
+    specialization : ""
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    post(route("faculty_file.update", faculty_edit.data.id));
+    put(route("faculty_file.update", faculty_edit.data.id));
   };
+
+  const handleDelete = (spec) => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+        if (result.isConfirmed) {
+          router.delete(route("faculty_specialization.destroy", { id: spec.id, faculty_id: faculty_edit.data.id }));
+
+            Swal.fire("Deleted!", "Successfully deleted.", "success");
+        }
+    });
+};
+
+  const handleSpecialization  = (e)=> {
+    e.preventDefault();
+
+    post(route("faculty_specialization.store", faculty_edit.data.id));
+    Swal.fire("", "Successfully Added.", "success");
+  }
 
   return (
     <AuthenticatedLayout
@@ -36,7 +63,7 @@ export default function Add({ auth, program, faculty_edit, user_department, user
     >
       <Head title="Faculty" />
 
-      <div className="py-12">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
@@ -179,7 +206,110 @@ export default function Add({ auth, program, faculty_edit, user_department, user
             </div>
           </div>
         </div>
+      </div> 
+               
+      <div className="py-2">
+        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+          <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <div className="p-6 text-gray-900 dark:text-gray-100">
+            <h1 className="text-lg">Add Specialization</h1>
+              <form onSubmit={handleSpecialization} className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div className="">
+                  <div className="space-y-4">
+
+                  <div>
+                      <InputLabel htmlFor="special_" value="Specilization Status" />
+                      <SelectInput
+                        id="special_"
+                        name="specialization"
+                        value={data.specialization}
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData("specialization", e.target.value)}
+                      >
+                        <option value="" hidden>- Sepecilization -</option>
+                        {specialization_select.map((spec)=>(
+                          <option value={spec.id} >{spec.name}</option>
+                        ))}
+                      </SelectInput>
+                      <InputError message={errors.specialization} className="mt-2" />
+                    </div>
+                    
+                  </div>
+                </div>
+
+                <div className="mt-6 text-right">
+                  <Link
+                    href={route("faculty_file.index")}
+                    className="bg-gray-100 py-2 px-4 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2"
+                  >
+                    Cancel
+                  </Link>
+                  <button className="bg-emerald-500 py-2 px-4 text-white rounded shadow transition-all hover:bg-emerald-600">
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
+
+
+      <div className="py-1">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                        <div className="p-6 text-gray-900 dark:text-gray-100">
+                            <div className="overflow-x-auto">
+                                <table
+                                    id="departmentTable"
+                                    className="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+                                >
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-200 dark:border-gray-600">
+                                        <tr>
+                                            <th className="px-4 py-3">
+                                                Specialization
+                                            </th>
+                                          
+                                            <th className="px-4 py-3">
+                                                Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {specializations.map((spec) => (
+                                            <tr
+                                                key={spec.id}
+                                                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                            >
+                                                <td className="px-4 py-3">
+                                                    {spec.name}
+                                                </td>
+                                             
+                                                <td className="px-4 py-3">
+                                                    <div className="flex space-x-2">              
+                                                        <button
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    spec
+                                                                )
+                                                            }
+                                                            className="text-red-500 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 rounded-full p-2 transition duration-150 ease-in-out"
+                                                            aria-label={`Delete ${spec.name}`}
+                                                        >
+                                                            <FaTrash className="w-5 h-5" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
     </AuthenticatedLayout>
   );
 }

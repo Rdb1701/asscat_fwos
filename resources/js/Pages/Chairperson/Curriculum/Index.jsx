@@ -200,6 +200,9 @@ export default function Index({
                                                 Pre-requisite
                                             </th>
                                             <th className="px-4 py-3">
+                                                SPECIALIZATION
+                                            </th>
+                                            <th className="px-4 py-3">
                                                 PROGRAM
                                             </th>
                                             <th className="px-4 py-3">
@@ -241,6 +244,9 @@ export default function Index({
                                                     {cur.pre_requisite
                                                         ? cur.pre_requisite
                                                         : "None"}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    {cur.specialization_name}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {cur.course_name}

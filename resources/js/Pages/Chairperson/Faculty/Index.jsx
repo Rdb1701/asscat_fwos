@@ -114,11 +114,12 @@ export default function Index({ auth, faculty, success }) {
                                             <th className="px-4 py-3">Name</th>
                                             <th className="px-4 py-3">Email</th>
                                             <th className="px-4 py-3">Employment</th>
+                                            <th className="px-4 py-3">Specialization</th>
                                             <th className="px-4 py-3">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {faculty.data.map((fac) => (
+                                        {faculty.map((fac) => (
                                             <tr
                                                 key={fac.id}
                                                 className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -137,6 +138,9 @@ export default function Index({ auth, faculty, success }) {
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {fac.employment_status}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    {fac.specializations}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex space-x-2">

@@ -6,7 +6,7 @@ import { Head, Link, useForm } from "@inertiajs/react";
 import SelectInput from "@/Components/SelectInput";
 import { useState } from "react";
 
-export default function Add({ auth, academic, courses }) {
+export default function Add({ auth, academic, courses, specialization }) {
     const { data, setData, post, errors, reset } = useForm({
         course_code: "",
         descriptive_title: "",
@@ -17,7 +17,8 @@ export default function Add({ auth, academic, courses }) {
         pre_requisite: "",
         year_level: "",
         course_id : "",
-        academic_year : ""
+        academic_year : "",
+        specialization_id : ""
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -207,6 +208,23 @@ export default function Add({ auth, academic, courses }) {
                                             ))}
                                         </SelectInput>
                                         <InputError message={errors.academic_id} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel htmlFor="special_" value="Specilization" />
+                                        <SelectInput
+                                            id="special_"
+                                            name="specialization"
+                                            value={data.specialization_id}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("specialization_id", e.target.value)}
+                                        >
+                                            <option value="" hidden>Select Specialization</option>
+                                            <option value="" >None</option>
+                                            {specialization_id.map((spec)=>(
+                                            <option value={spec.id} >{spec.name}</option>
+                                            ))}
+                                        </SelectInput>
+                                        <InputError message={errors.specialization_id} className="mt-2" />
                                     </div>
                                 </div>
 

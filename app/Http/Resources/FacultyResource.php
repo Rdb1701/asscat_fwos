@@ -23,6 +23,7 @@ class FacultyResource extends JsonResource
             'course_id'      => $this->course_id,
             'user_code_id'   => $this->user_code_id,
             'employment_status' =>$this->employment_status,
+            'specialization_name' =>$this->specialization_name,
             'created_at'     => (new Carbon($this->created_at))->format('Y-m-d'),
         ];
     }

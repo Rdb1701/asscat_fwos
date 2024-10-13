@@ -32,6 +32,8 @@ class CurriculumResource extends JsonResource
             'course_name'       => $this->course_name,
             'department_id'     => $this->department_name,
             'year_level'        => $this->year_level,
+            'specialization_name' => $this->specialization_name,
+            'specialization_id'    => $this->specialization_id,
             'created_at'        => (new Carbon($this->created_at))->format('Y-m-d'),
         ];
     }
