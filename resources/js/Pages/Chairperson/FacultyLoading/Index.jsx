@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 
 export default function Index({ auth, faculty, success, academic }) {
 
-    const { data, setData, post, errors, reset } = useForm({
+    const { data, setData, post, errors, reset, processing } = useForm({
         academic_id : ""
     });
 
@@ -26,11 +26,12 @@ export default function Index({ auth, faculty, success, academic }) {
         });
     };
 
-    const handleGenerate = (e)=> {
+    const handleGenerate = (e) => {
         e.preventDefault();
-      
-
+    
         post(route('faculty_loads.generate'));
+
+        // Swal.fire("Success!", "Successfully Generated Faculty Loads.", "success");
     }
 
     return (
@@ -100,8 +101,8 @@ export default function Index({ auth, faculty, success, academic }) {
 
                                         {/* View List Button */}
                                         <div className="mt-6">
-                                            <button className="bg-yellow-600 text-white px-4 py-1 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50">
-                                           Generate Faculty Loads
+                                            <button className="bg-yellow-600 text-white px-4 py-1 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50" disabled={processing}>
+                                             {processing ? 'Generating...' : 'Generate Faculty Loads'}
                                             </button>
                                         </div>
                                     </div>

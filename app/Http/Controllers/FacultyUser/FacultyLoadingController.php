@@ -25,7 +25,7 @@ class FacultyLoadingController extends Controller
         //faculty data
         $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
             ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
-            ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
+            ->leftJoin('users_employments as ue', 'ue.user_id', 'u.id')
             ->where('u.id', $user->id)
             ->first();
 
@@ -69,7 +69,7 @@ class FacultyLoadingController extends Controller
         $research_faculty_load = ResearchLoad::where('user_id', $user->id)
             ->sum('units');
 
-        $get_user_employment_status = DB::table('users_employment')->select('employment_status')->where('user_id', $user->id)->first();
+        $get_user_employment_status = DB::table('users_employments')->select('employment_status')->where('user_id', $user->id)->first();
 
 
         return inertia("Faculty/Dashboard", [

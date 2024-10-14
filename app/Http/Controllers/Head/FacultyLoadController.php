@@ -7,12 +7,14 @@ use App\Models\FacultyLoad;
 use App\Http\Requests\StoreFacultyLoadRequest;
 use App\Http\Requests\UpdateFacultyLoadRequest;
 use App\Models\AdministrativeLoad;
+use App\Models\CourseOffering;
 use App\Models\Curriculum;
 use App\Models\ResearchLoad;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FacultyLoadController extends Controller
 {
@@ -26,11 +28,11 @@ class FacultyLoadController extends Controller
             ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
             ->where('u.course_id', $user->course_id)
             ->get();
-        
+
         $academic = DB::table('academic_years')
-        ->select("*")
-        ->distinct()
-        ->get();
+            ->select("*")
+            ->distinct()
+            ->get();
 
         return inertia("Chairperson/FacultyLoading/Index", [
             'faculty' => $query_faculty,
@@ -110,7 +112,7 @@ class FacultyLoadController extends Controller
         $total_admin_research_load = $administrative_load + $research_load;
 
 
-       
+
         //IF FULLTIME
         $status = $query_faculty->employment_status;
         $maxUnitsFullTime = 27;
@@ -382,12 +384,11 @@ class FacultyLoadController extends Controller
     public function generateFacultyLoads(Request $request)
     {
         $data = $request->validate([
-            'academic_id' => ['required']
+            'academic_id' => ['required', 'exists:academic_years,id']
         ]);
 
         $academicYear = $data['academic_id'];
 
-        
         $faculties = User::with(['specializations', 'employment'])
             ->whereHas('employment', function ($query) {
                 $query->whereIn('employment_status', ['Full-Time', 'Part-Time', 'COS']);
@@ -401,11 +402,14 @@ class FacultyLoadController extends Controller
             $generatedLoads[$faculty->id] = $generatedLoad;
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Faculty loads generated successfully',
-            'data' => $generatedLoads
-        ]);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Faculty loads generated successfully',
+        //     'data' => $generatedLoads
+        // ]);
+
+        return to_route('faculty_load.index')
+            ->with('success', 'Successfully Generated Faculty Loads');
     }
 
     private function generateLoadForFaculty($faculty, $academicYear)
@@ -420,9 +424,7 @@ class FacultyLoadController extends Controller
         $currentLoad = $this->getCurrentFacultyLoad($faculty->id, $academicYear);
         $allocatedLoad = $this->allocateLoad($faculty, $availableCurricula, $currentLoad);
 
-        
-
-        $this->saveFacultyLoad($faculty->id, $allocatedLoad, $academicYear);
+        $this->saveFacultyLoad($faculty, $allocatedLoad, $academicYear, $currentLoad);
 
         return $allocatedLoad;
     }
@@ -456,7 +458,7 @@ class FacultyLoadController extends Controller
 
         foreach ($availableCurricula as $curriculum) {
             $units = $curriculum->lec + ($curriculum->lab * 0.75);
-            
+
             if ($totalUnits + $units <= $maxUnits && $preparations < $maxPreparations) {
                 $allocatedLoad[] = $curriculum;
                 $totalUnits += $units;
@@ -503,25 +505,83 @@ class FacultyLoadController extends Controller
         }
     }
 
-    private function saveFacultyLoad($facultyId, $generatedLoad, $academicYear)
+    private function saveFacultyLoad($faculty, $generatedLoad, $academicYear, $currentLoad)
     {
         // Delete existing loads for this faculty and academic year
-        FacultyLoad::where('user_id', $facultyId)
+        FacultyLoad::where('user_id', $faculty->id)
             ->whereHas('curriculum', function ($query) use ($academicYear) {
                 $query->where('academic_id', $academicYear);
             })
             ->delete();
 
+        $maxUnits = $this->getMaxUnits($faculty->employment->employment_status);
+        $totalUnits = $currentLoad['administrative'] + $currentLoad['research'];
+        $preparations = [];
+
         // Save new loads
         foreach ($generatedLoad as $curriculum) {
-            FacultyLoad::create([
-                'user_id' => $facultyId,
-                'curriculum_id' => $curriculum->id,
-                'contact_hours' => $curriculum->lec + $curriculum->lab,
-                'administrative_id' => null, // Set this if needed
-                'research_load_id' => null, // Set this if needed
-                'section' => 'A', // You might want to determine this dynamically
-            ]);
+            $availableSections = $this->getAvailableSections($curriculum, $academicYear);
+
+            if ($availableSections->isNotEmpty()) {
+                foreach ($availableSections as $section) {
+                    $units = $curriculum->lec + ($curriculum->lab * 0.75);
+
+                    // Check if adding this load would exceed the maximum units
+                    if ($totalUnits + $units > $maxUnits) {
+                        Log::warning("Maximum units exceeded for faculty {$faculty->id}. Skipping curriculum {$curriculum->id}");
+                        break 2; // Break out of both loops
+                    }
+
+                    // Check if adding this load would exceed the maximum preparations
+                    if (!in_array($curriculum->course_code, $preparations) && count($preparations) >= 4) {
+                        Log::warning("Maximum preparations exceeded for faculty {$faculty->id}. Skipping curriculum {$curriculum->id}");
+                        break; // Move to the next curriculum
+                    }
+
+                    // Check if the section already has an instructor assigned
+                    $existingLoad = FacultyLoad::where('curriculum_id', $curriculum->id)
+                        ->where('section', $section->id)
+                        ->first();
+
+                    if ($existingLoad) {
+                        Log::info("Section {$section->id} for curriculum {$curriculum->id} already has an instructor assigned. Skipping.");
+                        continue; // Try the next section
+                    }
+
+                    FacultyLoad::create([
+                        'user_id' => $faculty->id,
+                        'curriculum_id' => $curriculum->id,
+                        'contact_hours' => $curriculum->lec + $curriculum->lab,
+                        'administrative_id' => null,
+                        'research_load_id' => null,
+                        'section' => $section->id,
+                    ]);
+
+                    $totalUnits += $units;
+                    if (!in_array($curriculum->course_code, $preparations)) {
+                        $preparations[] = $curriculum->course_code;
+                    }
+                }
+            } else {
+                Log::warning("No available sections for curriculum {$curriculum->id} in academic year {$academicYear}");
+            }
         }
+
+        // Check if minimum units are met for Full-Time faculty
+        if ($faculty->employment->employment_status === 'Full-Time' && $totalUnits < 21) {
+            Log::warning("Minimum units not met for full-time faculty {$faculty->id}. Total units: {$totalUnits}");
+        }
+
+        Log::info("Total units allocated for faculty {$faculty->id}: {$totalUnits}");
+    }
+
+    private function getAvailableSections($curriculum, $academicYear)
+    {
+        return CourseOffering::where('academic_id', $academicYear)
+            ->where('course_id', $curriculum->course_id)
+            ->where('year_level', $curriculum->year_level)
+            ->with('section')
+            ->get()
+            ->pluck('section');
     }
 }

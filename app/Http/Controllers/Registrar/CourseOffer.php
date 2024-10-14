@@ -45,8 +45,6 @@ class CourseOffer extends Controller
                 's.section_name'
             )
             ->get();
-        
-
 
         return inertia("Registrar/CourseOffering/Index", [
             'academic' => $query,

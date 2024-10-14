@@ -74,7 +74,7 @@ class FacultyLoading extends Controller
         // Fetch faculty data
         $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
             ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
-            ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
+            ->leftJoin('users_employments as ue', 'ue.user_id', 'u.id')
             ->where('u.id', $request->user_id)
             ->first();
 
@@ -232,7 +232,7 @@ class FacultyLoading extends Controller
         //faculty data
         $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
             ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
-            ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
+            ->leftJoin('users_employments as ue', 'ue.user_id', 'u.id')
             ->where('u.id', $faculty_id)
             ->first();
 
@@ -276,7 +276,7 @@ class FacultyLoading extends Controller
         $research_faculty_load = ResearchLoad::where('user_id', $faculty_id)
             ->sum('units');
 
-        $get_user_employment_status = DB::table('users_employment')->select('employment_status')->where('user_id', $faculty_id)->first();
+        $get_user_employment_status = DB::table('users_employments')->select('employment_status')->where('user_id', $faculty_id)->first();
 
 
         return inertia("Registrar/FacultyLoad/FacultyView", [
@@ -318,7 +318,7 @@ class FacultyLoading extends Controller
         //faculty data
         $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
             ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
-            ->leftJoin('users_employment as ue', 'ue.user_id', 'u.id')
+            ->leftJoin('users_employments as ue', 'ue.user_id', 'u.id')
             ->where('u.id', $faculty_id)
             ->first();
 

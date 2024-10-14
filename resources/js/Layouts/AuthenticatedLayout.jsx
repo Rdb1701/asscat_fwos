@@ -198,18 +198,7 @@ export default function Authenticated({ user, header, children }) {
                                         />{" "}
                                         Faculty File
                                     </NavLink>
-                                    <NavLink
-                                        href={route("faculty_load.index")}
-                                        active={route().current(
-                                            "faculty_load.index"
-                                        )}
-                                    >
-                                        <FaClipboardList
-                                            style={{ marginRight: "8px" }}
-                                        />{" "}
-                                        Faculty Loading
-                                    </NavLink>
-
+                                    
                                     <NavLink
                                         href={route("course_offering.index")}
                                         active={route().current(
@@ -220,6 +209,18 @@ export default function Authenticated({ user, header, children }) {
                                             style={{ marginRight: "8px" }}
                                         />{" "}
                                         Course Offering
+                                    </NavLink>
+
+                                    <NavLink
+                                        href={route("faculty_load.index")}
+                                        active={route().current(
+                                            "faculty_load.index"
+                                        )}
+                                    >
+                                        <FaClipboardList
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
+                                        Faculty Loading
                                     </NavLink>
                                 </div>
                             )}
