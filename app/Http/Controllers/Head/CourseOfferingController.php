@@ -183,45 +183,52 @@ class CourseOfferingController extends Controller
         ]);
     }
 
-    public function getPrint(Request $request){
+    public function getPrint(Request $request) {
         //SEARCH QUERY
         $course      = $request->input('course_id');
         $school_year = $request->input('academic_id');
         $year_level  = $request->input('year_level');
-
+    
         //get school year
-        $get_school_year = DB::table('academic_years')->select('school_year', 'semester')->where('id', $school_year)->first();
-
+        $get_school_year = DB::table('academic_years')
+            ->select('school_year', 'semester')
+            ->where('id', $school_year)
+            ->first();
+    
         // get course and Dean
-        $get_course = DB::table('courses as c')->select(
-            'c.course_description',
-            'c.course_name',
-            'u.name as dean_name',
-            'd.department_name',
-            'd.department_description',
-            'u.department_id'
-        )
+        $get_course = DB::table('courses as c')
+            ->select(
+                'c.course_description',
+                'c.course_name',
+                'u.name as dean_name',
+                'd.department_name',
+                'd.department_description',
+                'u.department_id'
+            )
             ->leftJoin('users as u', 'u.department_id', 'c.department_id')
             ->leftJoin('departments as d', 'd.id', 'c.department_id')
-            ->where('c.id', $course)->first();
-
-
-
+            ->where('c.id', $course)
+            ->first();
+    
+        // Get course offering and faculty name
         $course_offering = DB::table('course_offerings as co')
             ->leftJoin('academic_years as ay', 'ay.id', 'co.academic_id')
             ->leftJoin('courses as c', 'c.id', 'co.course_id')
             ->leftJoin('sections as s', 's.id', 'co.section_id')
             ->leftJoin('curricula as cur', 'cur.course_id', 'c.id')
-            ->leftJoin('faculty_loads as fl', 'fl.curriculum_id', 'cur.id')
-      
+            ->leftJoin('faculty_loads as fl', function($join) {
+                $join->on('fl.curriculum_id', '=', 'cur.id')
+                    ->on('fl.section', '=', 's.id'); 
+            })
+            ->leftJoin('users as fac', 'fac.id', 'fl.user_id') 
             ->select(
                 'cur.*',
                 'c.course_name',
                 'cur.year_level',
                 's.section_name',
                 'ay.school_year',
-                'ay.semester'
-                
+                'ay.semester',
+                'fac.name as faculty_name' 
             )
             ->distinct()
             ->where('co.course_id', $course)
@@ -232,16 +239,16 @@ class CourseOfferingController extends Controller
             ->orderBy('s.section_name', 'asc')
             ->orderBy('cur.course_code')
             ->get();
-
-            // Check if no data is found
+    
+        // Check if no data is found
         $noDataFound = $course_offering->isEmpty();
-
-        return inertia("Chairperson/CourseOffering/Print",[
+    
+        return inertia("Chairperson/CourseOffering/Print", [
             'noDataFound'     => $noDataFound,
-            'courseOfferings' =>$course_offering,
+            'courseOfferings' => $course_offering,
             'school_year'     => $get_school_year,
             'program'         => $get_course,
-
         ]);
     }
+    
 }
