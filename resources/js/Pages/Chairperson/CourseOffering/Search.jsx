@@ -145,6 +145,9 @@ export default function Index({
                                                                     <th className="px-4 py-3">
                                                                         Pre-requisite
                                                                     </th>
+                                                                    <th className="px-4 py-3">
+                                                                       name of Instructor
+                                                                    </th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -191,6 +194,11 @@ export default function Index({
                                                                                     ? cur.pre_requisite
                                                                                     : "None"}
                                                                             </td>
+                                                                            <td className="px-4 py-3">
+                                                                                {
+                                                                                    cur.faculty_name
+                                                                                }
+                                                                            </td>
                                                                         </tr>
                                                                     )
                                                                 )}
@@ -223,6 +231,7 @@ export default function Index({
                                                                             totalLAB
                                                                         }
                                                                     </td>
+                                                                    <td className="px-4 py-3"></td>
                                                                     <td className="px-4 py-3"></td>
                                                                 </tr>
                                                             </tfoot>
