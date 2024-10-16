@@ -220,7 +220,7 @@ export default function Add({ auth, academic, courses, specialization }) {
                                         >
                                             <option value="" hidden>Select Specialization</option>
                                             <option value="" >None</option>
-                                            {specialization_id.map((spec)=>(
+                                            {specialization.map((spec)=>(
                                             <option value={spec.id} >{spec.name}</option>
                                             ))}
                                         </SelectInput>

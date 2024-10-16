@@ -23,7 +23,8 @@ class UpdateSectionRequest extends FormRequest
     {
         return [
             "section_name"        => ['required','max:255'],
-            'year_level'         => ['required','max:255']
+            'year_level'         => ['required','max:255'],
+            'course_id'          => ['max:255']
          ];
     }
 }

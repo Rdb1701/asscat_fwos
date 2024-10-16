@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Specialization;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SpecializationController extends Controller
@@ -13,7 +14,10 @@ class SpecializationController extends Controller
      */
     public function index()
     {
-        $query = DB::table('specializations')->select('*')->get();
+        $user  = Auth::user();
+        $query = DB::table('specializations')->select('*')
+        ->where('course_id', $user->course_id)
+        ->get();
 
         return inertia(
             'Chairperson/Specialization/Index',[
@@ -35,11 +39,15 @@ class SpecializationController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
         $data = $request->validate([
             'name' => ['required','max:255']
         ]);
 
-        Specialization::create($data);
+        DB::table('specializations')->insert([
+            'name'      => $data['name'],
+            'course_id' => $user->course_id
+        ]);
 
         return to_route('specialization.index')
         ->with('success','Successfully Added');

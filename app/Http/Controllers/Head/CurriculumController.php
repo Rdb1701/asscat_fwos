@@ -40,6 +40,7 @@ class CurriculumController extends Controller
             ->select('*')
             ->where('id', $user->course_id)
             ->get();
+
         $academic = DB::table('academic_years')
             ->select('school_year')
             ->distinct()
@@ -58,13 +59,17 @@ class CurriculumController extends Controller
      */
     public function create()
     {
+        $user     = Auth::user();
         $academic = DB::table('academic_years')->select('*')->get();
         $course = DB::table('courses as c')
             ->leftJoin('departments as d', 'd.id', 'c.department_id')
             ->select('c.*', 'd.department_name')
+            ->where('c.id', $user->course_id)
             ->get();
-        
-        $specialization = DB::table('specializations')->select('*')->get();
+
+        $specialization = DB::table('specializations')->select('*')
+            ->where('course_id', $user->course_id)
+            ->get();
 
         return inertia("Chairperson/Curriculum/Add", [
             'academic'       => $academic,
@@ -127,13 +132,17 @@ class CurriculumController extends Controller
      */
     public function edit(Curriculum $curriculum)
     {
+        $user = Auth::user();
         $academic = DB::table('academic_years')->select('*')->get();
         $course = DB::table('courses as c')
             ->leftJoin('departments as d', 'd.id', 'c.department_id')
             ->select('c.*', 'd.department_name')
+            ->where('c.id', $user->course_id)
             ->get();
-        
-        $specialization = DB::table('specializations')->select('*')->get();
+
+        $specialization = DB::table('specializations')->select('*')
+            ->where('course_id', $user->course_id)
+            ->get();
 
         return inertia("Chairperson/Curriculum/Edit", [
             "curr_edit" => new CurriculumResource($curriculum),

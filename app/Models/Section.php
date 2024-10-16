@@ -12,7 +12,8 @@ class Section extends Model
 
     protected $fillable = [
         'section_name',
-        'year_level'
+        'year_level',
+        'course_id'
     ];
 
 

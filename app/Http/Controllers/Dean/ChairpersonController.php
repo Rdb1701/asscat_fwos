@@ -19,13 +19,16 @@ class ChairpersonController extends Controller
      */
     public function index()
     {
+        $user = Auth::user();
         $query = DB::table('users as us')
             ->leftJoin('courses as c', 'c.id', 'us.course_id')
             ->select(
                 'us.*',
-                'c.course_name'
+                'c.course_name',
+                'c.department_id'
             )
             ->where('us.role', 'Chairperson')
+            ->where('c.department_id', $user->department_id)
             ->get();
 
         return inertia("Dean/Chairperson/Index", [
@@ -39,8 +42,10 @@ class ChairpersonController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
         $program = DB::table('courses')
             ->select('*')
+            ->where('department_id', $user->department_id)
             ->get();
 
         return inertia("Dean/Chairperson/Add", [
@@ -73,7 +78,7 @@ class ChairpersonController extends Controller
          ]);
 
          //insert for user employment
-         DB::table('users_employment')->insert([
+         DB::table('users_employments')->insert([
              'employment_classification' => "Teaching",
              'employment_status'         => "Full-Time",
              'regular_load'              => "21",

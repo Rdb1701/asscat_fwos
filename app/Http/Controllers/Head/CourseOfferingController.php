@@ -49,9 +49,14 @@ class CourseOfferingController extends Controller
      */
     public function create()
     {
+        $user     = Auth::user();
         $academic = DB::table('academic_years')->select('*')->get();
-        $course   = DB::table('courses')->select('*')->get();
-        $section  = DB::table('sections')->select('*')->get();
+        $course   = DB::table('courses')->select('*')
+            ->where('id', $user->course_id)
+            ->get();
+        $section  = DB::table('sections')->select('*')
+            ->where('course_id', $user->course_id)
+            ->get();
 
 
         return inertia("Chairperson/CourseOffering/Add", [

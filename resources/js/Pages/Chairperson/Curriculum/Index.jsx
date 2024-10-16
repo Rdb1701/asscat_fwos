@@ -246,7 +246,7 @@ export default function Index({
                                                         : "None"}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {cur.specialization_name}
+                                                    {cur.specialization_name ? cur.specialization_name : "None" }
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {cur.course_name}

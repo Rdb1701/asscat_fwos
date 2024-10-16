@@ -13,7 +13,8 @@ class Specialization extends Model
 
     protected $fillable = 
     [
-        'name'
+        'name',
+        'course_id'
     ];
 
     public function users(): BelongsToMany

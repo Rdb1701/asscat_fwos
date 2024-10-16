@@ -36,9 +36,10 @@ class FacultyController extends Controller
                 DB::raw('GROUP_CONCAT(sp.name SEPARATOR ", ") as specializations') // Combine specializations
             )
             ->where('c.id', $user->course_id)
+            ->where('u.course_id', $user->course_id)
             ->groupBy('u.id', 'u.name', 'u.email', 'ud.user_code_id', 'ue.employment_status') // Add all selected non-aggregated columns
             ->get();
-    
+
         return inertia("Chairperson/Faculty/Index", [
             'faculty'  => $query,
             'success'  => session('success')
@@ -154,6 +155,7 @@ class FacultyController extends Controller
 
         $specialization_select = DB::table('specializations')
         ->select('*')
+        ->where('course_id', $user->course_id)
         ->get();
 
 

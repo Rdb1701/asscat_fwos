@@ -8,6 +8,7 @@ use App\Http\Requests\StoreSectionRequest;
 use App\Http\Requests\UpdateSectionRequest;
 use App\Http\Resources\SectionResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class SectionController extends Controller
 {
@@ -16,7 +17,8 @@ class SectionController extends Controller
      */
     public function index()
     {
-        $query = Section::query();
+        $user     = Auth::user();
+        $query    = Section::query()->where('course_id', $user->course_id);
         $sections = $query->get();
 
         return inertia("Chairperson/Section/Index", [
@@ -38,8 +40,14 @@ class SectionController extends Controller
      */
     public function store(StoreSectionRequest $request)
     {
+        $user = Auth::user();
         $data = $request->validated();
-        Section::create($data);
+
+        DB::table('sections')->insert([
+            'section_name' => $data['section_name'],
+            'year_level'   => $data['year_level'],
+            'course_id'    =>  $user->course_id
+        ]);
 
         return to_route("section.index")
             ->with('success', 'Successfully Created');

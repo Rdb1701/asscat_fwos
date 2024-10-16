@@ -152,17 +152,6 @@ export default function Authenticated({ user, header, children }) {
 
                             {user.role === "Chairperson" && (
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                        href={route("specialization.index")}
-                                        active={route().current(
-                                            "specialization.index"
-                                        )}
-                                    >
-                                        <MdClass
-                                            style={{ marginRight: "8px" }}
-                                        />{" "}
-                                        Faculty Specialization
-                                    </NavLink>
                                     <NavLink
                                         href={route("chairperson.dashboard")}
                                         active={route().current(
@@ -174,7 +163,17 @@ export default function Authenticated({ user, header, children }) {
                                         />{" "}
                                         Class Management
                                     </NavLink>
-
+                                    <NavLink
+                                        href={route("specialization.index")}
+                                        active={route().current(
+                                            "specialization.index"
+                                        )}
+                                    >
+                                        <MdClass
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
+                                        Faculty Specialization
+                                    </NavLink>
                                     <NavLink
                                         href={route("curriculum.index")}
                                         active={route().current(

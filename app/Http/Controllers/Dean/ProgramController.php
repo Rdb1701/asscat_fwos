@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Http\Requests\StoreCourseRequest;
 use App\Http\Requests\UpdateCourseRequest;
 use App\Http\Resources\CourseResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ProgramController extends Controller
@@ -16,9 +17,11 @@ class ProgramController extends Controller
      */
     public function index()
     {
+        $user = Auth::user();
         $query = DB::table('courses as c')
             ->leftJoin('departments as d', 'c.department_id', 'd.id')
             ->select('c.*', 'd.department_name')
+            ->where('c.department_id', $user->department_id)
             ->get();
 
         return inertia('Dean/Program/Index', [
@@ -32,8 +35,10 @@ class ProgramController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
         $department = DB::table('departments')
             ->select('*')
+            ->where('id', $user->department_id)
             ->get();
 
         return inertia("Dean/Program/Add", [
