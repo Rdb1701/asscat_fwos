@@ -8,11 +8,9 @@ import { FaTrash, FaEdit, FaPlus, FaRegEye, FaDownload } from "react-icons/fa";
 import Swal from "sweetalert2";
 
 export default function Index({ auth, faculty, success, academic }) {
-
     const { data, setData, post, errors, reset, processing } = useForm({
-        academic_id : ""
+        academic_id: "",
     });
-
 
     useEffect(() => {
         $(document).ready(function () {
@@ -28,11 +26,17 @@ export default function Index({ auth, faculty, success, academic }) {
 
     const handleGenerate = (e) => {
         e.preventDefault();
-    
-        post(route('faculty_loads.generate'));
 
-        // Swal.fire("Success!", "Successfully Generated Faculty Loads.", "success");
-    }
+        if (data.academic_id) {
+            post(route("faculty_loads.generate"));
+        } else {
+            Swal.fire(
+                "",
+                "Please Academic Year",
+                "error"
+            );
+        }
+    };
 
     return (
         <AuthenticatedLayout
@@ -58,9 +62,9 @@ export default function Index({ auth, faculty, success, academic }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
                             {/* Search Bar Section */}
-                            <form onSubmit={handleGenerate} >
+                            <form onSubmit={handleGenerate}>
                                 <div className="flex justify-between items-center mb-1">
-                                    <div className="flex items-center space-x-1">                             
+                                    <div className="flex items-center space-x-1">
                                         <div>
                                             <label
                                                 htmlFor="program"
@@ -97,12 +101,15 @@ export default function Index({ auth, faculty, success, academic }) {
                                             </select>
                                         </div>
 
-                               
-
                                         {/* View List Button */}
                                         <div className="mt-6">
-                                            <button className="bg-yellow-600 text-white px-4 py-1 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50" disabled={processing}>
-                                             {processing ? 'Generating...' : 'Generate Faculty Loads'}
+                                            <button
+                                                className="bg-yellow-600 text-white px-4 py-1 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                                                disabled={processing}
+                                            >
+                                                {processing
+                                                    ? "Generating..."
+                                                    : "Generate Faculty Loads"}
                                             </button>
                                         </div>
                                     </div>
