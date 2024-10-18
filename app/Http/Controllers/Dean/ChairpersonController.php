@@ -63,32 +63,32 @@ class ChairpersonController extends Controller
         $chairperson =  User::create($data);
 
 
-     if ($chairperson) {
-         $timestamp = time();
-         $lastSixDigits = substr($timestamp, -6);
+        if ($chairperson) {
+            $timestamp = time();
+            $lastSixDigits = substr($timestamp, -6);
 
-         $user_code = substr_replace($lastSixDigits, '-', 4, 0);
+            $user_code = substr_replace($lastSixDigits, '-', 4, 0);
 
-         //insert to User Department
-         DB::table('users_deparment')->insert([
-             'user_code_id'  => $user_code,
-             'position'      => "Faculty",
-             'department_id' => $user->department_id,
-             'user_id'       => $chairperson->id,
-         ]);
+            //insert to User Department
+            DB::table('users_deparment')->insert([
+                'user_code_id'  => $user_code,
+                'position'      => "Faculty",
+                'department_id' => $user->department_id,
+                'user_id'       => $chairperson->id,
+            ]);
 
-         //insert for user employment
-         DB::table('users_employments')->insert([
-             'employment_classification' => "Teaching",
-             'employment_status'         => "Full-Time",
-             'regular_load'              => "21",
-             'extra_load'                => "6",
-             'user_id'                   => $chairperson->id,
-         ]);
-     } else {
-         return to_route('faculty_file.index')
-             ->with('success', 'Cannot be Created');
-     }
+            //insert for user employment
+            DB::table('users_employments')->insert([
+                'employment_classification' => "Teaching",
+                'employment_status'         => "Full-Time",
+                'regular_load'              => "21",
+                'extra_load'                => "6",
+                'user_id'                   => $chairperson->id,
+            ]);
+        } else {
+            return to_route('faculty_file.index')
+                ->with('success', 'Cannot be Created');
+        }
 
         return to_route('chairAccount.index')
             ->with('success', 'Successfully Created');
@@ -119,8 +119,10 @@ class ChairpersonController extends Controller
      */
     public function edit(User $chairAccount)
     {
+        $user = Auth::user();
         $course = DB::table('courses')
             ->select('*')
+            ->where('department_id', $user->department_id)
             ->get();
         return inertia("Dean/Chairperson/Edit", [
             "chair_edit" => new ChairpersonResource($chairAccount),
@@ -148,11 +150,10 @@ class ChairpersonController extends Controller
         $chairAccount->delete();
 
         return to_route('chairAccount.index');
-        
     }
 
 
-    public function changepassword(Request $request, User $dean)
+    public function changepassword(Request $request, User $chairperson)
     {
         $data = $request->validate([
             "password"     => [
@@ -169,7 +170,7 @@ class ChairpersonController extends Controller
             unset($data['password']);
         }
 
-        $dean->update($data);
+        $chairperson->update($data);
 
         return to_route('chairAccount.index')
             ->with('success', "Successfully Change Password");

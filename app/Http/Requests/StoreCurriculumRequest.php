@@ -22,24 +22,24 @@ class StoreCurriculumRequest extends FormRequest
      */
     public function rules(): array
     {
-        
         return [
-
             'course_code'       => [
                 'required',
-                "unique:curricula,course_code",
-                'max:255'
+                'max:255',
+                Rule::unique('curricula')->where(function ($query) {
+                    return $query->where('course_id', $this->course_id);
+                }),
             ],
             'descriptive_title' => ['required', 'max:255'],
-            'lec'               => [ 'max:11'],
-            'lab'               => [ 'max:11'],
-            'cmo'               => [ 'max:11'],
-            'hei'               => [ 'max:11'],
+            'lec'               => ['max:11'],
+            'lab'               => ['max:11'],
+            'cmo'               => ['max:11'],
+            'hei'               => ['max:11'],
             'pre_requisite'     => ['max:255'],
             'academic_id'       => ['required', 'max:255'],
             'course_id'         => ['required', 'max:255'],
             'year_level'        => ['required', 'max:255'],
-            'specialization_id'     => ['max:255']
+            'specialization_id' => ['max:255'],
         ];
     }
 }

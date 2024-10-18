@@ -107,6 +107,7 @@ export default function Add({ auth, program, faculty_edit, user_department, user
                       >
                         <option value="" hidden>Select Role</option>
                         <option value="Faculty">Faculty</option>
+                        <option value="Chairperson">Chairperson</option>
                       </SelectInput>
                       <InputError message={errors.role} className="mt-2" />
                     </div>
