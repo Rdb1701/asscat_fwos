@@ -216,7 +216,7 @@ export default function FacultyLoading({
            
             <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                {employment_status && employment_status.employment_status === "Full-Time" && (
+                {employment_status && (employment_status.employment_status === "Full-Time" || employment_status.employment_status === "COS")  &&(
                     <div className="flex flex-col md:flex-row gap-6 py-2">
                         {/* Left Column */}
                         <div className="w-full md:w-1/2">

@@ -111,7 +111,11 @@ export default function Add({ auth, program, faculty_edit, user_department, user
                       </SelectInput>
                       <InputError message={errors.role} className="mt-2" />
                     </div>
-                    <div>
+                
+                  </div>
+
+                  <div className="space-y-4">
+                  <div>
                       <InputLabel htmlFor="course" value="Program" />
                       <SelectInput
                         id="course"
@@ -129,9 +133,7 @@ export default function Add({ auth, program, faculty_edit, user_department, user
                       </SelectInput>
                       <InputError message={errors.course_id} className="mt-2" />
                     </div>
-                  </div>
-
-                  <div className="space-y-4">
+                    
                     <div>
                       <InputLabel htmlFor="emp_class" value="Employment Classification" />
                       <SelectInput
@@ -164,7 +166,7 @@ export default function Add({ auth, program, faculty_edit, user_department, user
                       <InputError message={errors.employment_status} className="mt-2" />
                     </div>
 
-                    <div>
+                    {/* <div>
                       <InputLabel htmlFor="reg_load" value="Regular Load" />
                       <TextInput
                         id="reg_load"
@@ -188,7 +190,7 @@ export default function Add({ auth, program, faculty_edit, user_department, user
                         onChange={(e) => setData("extra_load", e.target.value)}
                       />
                       <InputError message={errors.extra_load} className="mt-2" />
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

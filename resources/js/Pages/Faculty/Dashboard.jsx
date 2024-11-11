@@ -169,7 +169,7 @@ export default function Dashboard({
                                                             {courses.reduce((acc, fl) => acc + parseFloat(fl.lab), 0)}
                                                         </td>
                                                         <td colSpan="3"></td>
-                                                    </tr>
+                                                    </tr>   
                                                 </tfoot>
                                             </table>
                                         </div>
@@ -179,7 +179,8 @@ export default function Dashboard({
                                                     Faculty Units: {semesterTotalUnits} | 
                                                     Administrative Load Units: {administrative_faculty_load} | 
                                                     Research Load Units: {research_faculty_load} |
-                                                    Total Units: {(parseFloat(semesterTotalUnits) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)).toFixed(2)}
+                                                    Total Units: {(parseFloat(semesterTotalUnits) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)).toFixed(2)} |
+                                                    Total Hours: {courses.reduce((acc, fl) => acc + parseFloat(fl.lec) + parseFloat(fl.lab), 0) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)}
                                                 </p>
                                             </div>
                                         </div>
