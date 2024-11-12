@@ -30,7 +30,7 @@ class CurriculumController extends Controller
                 'c.course_name',
                 'd.department_name',
                 'acad.school_year',
-                'acad.semester',
+                'acad.semester as ac_semester',
                 's.name as specialization_name'
             )
             ->where('cur.course_id', $user->course_id)
@@ -41,16 +41,16 @@ class CurriculumController extends Controller
             ->where('id', $user->course_id)
             ->get();
 
-        $academic = DB::table('academic_years')
-            ->select('school_year')
+        $academic = DB::table('curricula')
+            ->select('efectivity_year as school_year')
             ->distinct()
             ->get();
 
         return inertia("Chairperson/Curriculum/Index", [
             'curriculums' => CurriculumResource::collection($query),
-            'success' => session('success'),
-            'programs' => $programs,
-            'academic' => $academic
+            'success'     => session('success'),
+            'programs'    => $programs,
+            'academic'    => $academic
         ]);
     }
 
@@ -59,9 +59,11 @@ class CurriculumController extends Controller
      */
     public function create()
     {
-        $user     = Auth::user();
-        $academic = DB::table('academic_years')->select('*')->get();
-        $course = DB::table('courses as c')
+        $user        = Auth::user();
+        $academic    = DB::table('academic_years')->select('*')->get();
+        $effectivity = DB::table('academic_years')->select('school_year')->distinct()->get();
+        $semester    = DB::table('academic_years')->select('semester')->distinct()->get();
+        $course      = DB::table('courses as c')
             ->leftJoin('departments as d', 'd.id', 'c.department_id')
             ->select('c.*', 'd.department_name')
             ->where('c.id', $user->course_id)
@@ -72,6 +74,8 @@ class CurriculumController extends Controller
             ->get();
 
         return inertia("Chairperson/Curriculum/Add", [
+            'effectivity'    => $effectivity,
+            'semester'       => $semester,
             'academic'       => $academic,
             'courses'        => $course,
             'specialization' => $specialization
@@ -95,7 +99,7 @@ class CurriculumController extends Controller
      */
     public function show(Curriculum $curriculum)
     {
-        $user = Auth::user();
+        $user  = Auth::user();
         $query = DB::table('curricula as cur')
             ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
             ->leftJoin('courses as c', 'c.id', 'cur.course_id')
@@ -121,7 +125,7 @@ class CurriculumController extends Controller
 
         return inertia("Chairperson/Curriculum/Index", [
             'curriculums' => CurriculumResource::collection($query),
-            'success' => session('success'),
+            'success'  => session('success'),
             'programs' => $programs,
             'academic' => $academic
         ]);
@@ -132,9 +136,11 @@ class CurriculumController extends Controller
      */
     public function edit(Curriculum $curriculum)
     {
-        $user = Auth::user();
-        $academic = DB::table('academic_years')->select('*')->get();
-        $course = DB::table('courses as c')
+        $user        = Auth::user();
+        $academic    = DB::table('academic_years')->select('*')->get();
+        $effectivity = DB::table('academic_years')->select('school_year')->distinct()->get();
+        $semester    = DB::table('academic_years')->select('semester')->distinct()->get();
+        $course      = DB::table('courses as c')
             ->leftJoin('departments as d', 'd.id', 'c.department_id')
             ->select('c.*', 'd.department_name')
             ->where('c.id', $user->course_id)
@@ -145,9 +151,11 @@ class CurriculumController extends Controller
             ->get();
 
         return inertia("Chairperson/Curriculum/Edit", [
-            "curr_edit" => new CurriculumResource($curriculum),
-            'academic' => $academic,
-            'courses' => $course,
+            "curr_edit"      => new CurriculumResource($curriculum),
+            'academic'       => $academic,
+            'courses'        => $course,
+            'effectivity'    => $effectivity,
+            'semester'       => $semester,
             'specialization' => $specialization
         ]);
     }
@@ -179,23 +187,21 @@ class CurriculumController extends Controller
     {
 
         //SEARCH QUERY
-        $course      = $request->input('course');
-        $school_year = $request->input('school_year');
+        $course           = $request->input('course');
+        $school_year      = $request->input('school_year');
+        $curriculum_year  = $request->input('curriculum_year');
 
         $get_course = DB::table('courses')->select('course_description', 'id')->where('id', $course)->first();
 
 
         $search = DB::table('curricula as circ')
             ->leftJoin('courses as c', 'c.id', 'circ.course_id')
-            ->leftJoin('academic_years as acad', 'acad.id', 'circ.academic_id')
             ->select(
                 'circ.*',
-                'acad.school_year',
-                'acad.semester',
                 'c.course_name'
             )
             ->where('circ.course_id', $course)
-            ->where('acad.school_year', $school_year)
+            ->where('efectivity_year', $school_year)
             ->orderByRaw("
         CASE 
             WHEN circ.year_level = 'First Year' THEN 1
@@ -204,7 +210,7 @@ class CurriculumController extends Controller
             WHEN circ.year_level = 'Fourth Year' THEN 4
         END
     ")
-            ->orderBy('acad.semester', 'asc')
+            ->orderBy('semester', 'asc')
             ->get();
 
 
@@ -215,7 +221,8 @@ class CurriculumController extends Controller
         return inertia("Chairperson/Curriculum/Search", [
             'curriculum'  => $search,
             'program'     => $get_course,
-            'school_year' => $school_year,
+            'school_year' => $curriculum_year,
+            'curriculum_year' => $school_year,
             'noDataFound' => $noDataFound
         ]);
     }
@@ -227,6 +234,7 @@ class CurriculumController extends Controller
         $course             = $request->input('course');
         $school_year        = $request->input('school_year');
         $course_description = $request->input('course_description');
+        $curriculum_year  = $request->input('curriculum_year');
 
         // get course and Dean
         $get_course = DB::table('courses as c')->select(
@@ -247,15 +255,12 @@ class CurriculumController extends Controller
         //get curriculum
         $search = DB::table('curricula as circ')
             ->leftJoin('courses as c', 'c.id', 'circ.course_id')
-            ->leftJoin('academic_years as acad', 'acad.id', 'circ.academic_id')
             ->select(
                 'circ.*',
-                'acad.school_year',
-                'acad.semester',
                 'c.course_name'
             )
             ->where('circ.course_id', $course)
-            ->where('acad.school_year', $school_year)
+            ->where('efectivity_year', $school_year)
             ->orderByRaw("
         CASE 
             WHEN circ.year_level = 'First Year' THEN 1
@@ -264,7 +269,7 @@ class CurriculumController extends Controller
             WHEN circ.year_level = 'Fourth Year' THEN 4
         END
     ")
-            ->orderBy('acad.semester', 'asc')
+            ->orderBy('semester', 'asc')
             ->get();
 
 
@@ -273,12 +278,13 @@ class CurriculumController extends Controller
 
 
         return inertia("Chairperson/Curriculum/Print", [
-            'curriculum' => $search,
-            'program' => $get_course,
-            'school_year' => $school_year,
-            'course_description' => $course_description,
-            'noDataFound' => $noDataFound,
-            'chairperson' => $get_chairperson
+            'curriculum'          => $search,
+            'program'             => $get_course,
+            'school_year'         => $school_year,
+            'course_description'  => $course_description,
+            'noDataFound'         => $noDataFound,
+            'chairperson'         => $get_chairperson,
+            'curriculum_year'     => $curriculum_year
 
         ]);
     }

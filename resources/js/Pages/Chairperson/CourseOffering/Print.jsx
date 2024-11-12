@@ -51,8 +51,10 @@ export default function PrintableCourseOffering({
                         @page {
                             size: landscape;
                             margin: 0.5in;
+                           
                         }
                         body {
+                            font-family: 'Times New Roman', Times, serif;
                             print-color-adjust: exact;
                             -webkit-print-color-adjust: exact;
                         }
@@ -113,7 +115,7 @@ export default function PrintableCourseOffering({
                 `}</style>
             </Head>
 
-            <div className="p-4">
+            <div className="p-4" style={{fontFamily: "Times New Roman, Times, serif"}}>
                 {isEmpty ? (
                     <div className="text-center text-red-600 font-bold py-5">
                         No data found

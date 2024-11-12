@@ -7,9 +7,10 @@ import "datatables.net-dt/css/dataTables.dataTables.min.css";
 import { FaTrash, FaEdit, FaPlus, FaRegEye, FaDownload } from "react-icons/fa";
 import Swal from "sweetalert2";
 
-export default function Index({ auth, faculty, success, academic }) {
+export default function Index({ auth, faculty, success, academic, curriculum_year }) {
     const { data, setData, post, errors, reset, processing } = useForm({
         academic_id: "",
+        curriculum_year : ""
     });
 
     useEffect(() => {
@@ -100,6 +101,40 @@ export default function Index({ auth, faculty, success, academic }) {
                                                 ))}
                                             </select>
                                         </div>
+                                        <div>
+                                            <label
+                                                htmlFor="curriculumYear"
+                                                className="block text-sm font-medium text-white-700"
+                                            >
+                                                Curriculum
+                                            </label>
+                                            <select
+                                                id="curriculumYear"
+                                                name="curriculum_year"
+                                                className="mt-1 text-black block w-full pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                                value={data.curriculum_year}
+                                                autoFocus
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "curriculum_year",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            >
+                                                <option value="" hidden>
+                                                    - Choose From -
+                                                </option>
+                                                {curriculum_year.map((acad) => (
+                                                    <option
+                                                        key={acad.school_year}
+                                                        value={acad.school_year}
+                                                    >
+                                                        {acad.school_year} Curriculum
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
 
                                         {/* View List Button */}
                                         <div className="mt-6">

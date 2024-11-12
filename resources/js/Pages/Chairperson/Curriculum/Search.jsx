@@ -12,6 +12,7 @@ export default function Index({
     curriculum,
     program,
     school_year,
+    curriculum_year,
     noDataFound,
 }) {
     // Group the curriculum by year level and semester
@@ -32,7 +33,8 @@ export default function Index({
       
         router.get(route("getPrint.curriculum"), {
             course: program,
-            school_year: school_year,
+            school_year: curriculum_year,
+            curriculum_year : school_year
        
         });
     };

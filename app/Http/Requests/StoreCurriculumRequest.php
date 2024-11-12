@@ -40,6 +40,8 @@ class StoreCurriculumRequest extends FormRequest
             'course_id'         => ['required', 'max:255'],
             'year_level'        => ['required', 'max:255'],
             'specialization_id' => ['max:255'],
+            'efectivity_year'   => ['required','max:255'],
+            'semester'          => ['required','max:255'],
         ];
     }
 }

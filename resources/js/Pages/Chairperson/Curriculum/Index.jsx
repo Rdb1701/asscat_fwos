@@ -17,6 +17,7 @@ export default function Index({
     const { data, setData, post, errors, reset } = useForm({
         course: "",
         school_year: "",
+        curriculum_year : ""
     });
 
     useEffect(() => {
@@ -30,10 +31,10 @@ export default function Index({
     const handleSearch = (e) => {
         e.preventDefault();
 
-        if (data.course && data.school_year) {
+        if (data.course && data.school_year && data.curriculum_year) {
             router.get(route("getSearch.curriculum"), data);
         } else {
-            Swal.fire("", "Please Select Program and School Year.", "error");
+            Swal.fire("", "Please Select Program, School Year and Curriculum Year.", "error");
         }
     };
 
@@ -124,10 +125,40 @@ export default function Index({
                                         {/* Curriculum Year Dropdown */}
                                         <div>
                                             <label
+                                                htmlFor="curricul"
+                                                className="block text-sm font-medium text-white-700"
+                                            >
+                                                School Year
+                                            </label>
+                                            <select
+                                                id="curricul"
+                                                name="curriculum_year"
+                                                className="mt-1 text-black block w-full pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                                value={data.curriculum_year}
+                                                autoFocus
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "curriculum_year",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            >
+                                                <option value="" hidden>
+                                                    - Select SY -
+                                                </option>
+                                                    <option value="2024-2025">2024-2025</option>
+                                                    <option value="2025-2026">2025-2026</option>
+                                                    <option value="2026-2027">2026-2027</option>
+                                                   
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label
                                                 htmlFor="curriculumYear"
                                                 className="block text-sm font-medium text-white-700"
                                             >
-                                                Curriculum Year
+                                                Curriculum
                                             </label>
                                             <select
                                                 id="curriculumYear"
@@ -143,14 +174,14 @@ export default function Index({
                                                 }
                                             >
                                                 <option value="" hidden>
-                                                    - Select SY -
+                                                    - Choose From -
                                                 </option>
                                                 {academic.map((acad) => (
                                                     <option
                                                         key={acad.school_year}
                                                         value={acad.school_year}
                                                     >
-                                                        {acad.school_year}
+                                                        {acad.school_year} Curriculum
                                                     </option>
                                                 ))}
                                             </select>
@@ -209,7 +240,7 @@ export default function Index({
                                                 SEMESTER
                                             </th>
                                             <th className="px-4 py-3">
-                                                SCHOOL YEAR
+                                                EFFECTIVITY YEAR
                                             </th>
                                             <th className="px-4 py-3">
                                                 Action
@@ -255,7 +286,7 @@ export default function Index({
                                                     {cur.semester}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {cur.school_year}
+                                                    {cur.efectivity_year}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex space-x-2">

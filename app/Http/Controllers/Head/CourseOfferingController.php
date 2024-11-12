@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CourseOffering;
 use App\Http\Requests\StoreCourseOfferingRequest;
 use App\Http\Requests\UpdateCourseOfferingRequest;
+use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,12 @@ class CourseOfferingController extends Controller
     {
         $user   = Auth::user();
         $query  = DB::table('academic_years')->select('*')->get();
+
+        $curriculum_year  = DB::table('curricula')
+        ->select('efectivity_year as school_year')
+        ->distinct()
+        ->get();
+
         $query2 = DB::table('courses')->select('*')->where('id', $user->course_id)->get();
 
         $course_offering = DB::table('course_offerings as co')
@@ -37,10 +44,11 @@ class CourseOfferingController extends Controller
 
 
         return inertia("Chairperson/CourseOffering/Index", [
-            'academic' => $query,
-            'courses'  => $query2,
-            'courseOffering' => $course_offering,
-            'success'   => session('success')
+            'academic'        => $query,
+            'courses'         => $query2,
+            'curriculum_year' => $curriculum_year,
+            'courseOffering'  => $course_offering,
+            'success'         => session('success')
         ]);
     }
 
@@ -73,14 +81,15 @@ class CourseOfferingController extends Controller
     {
         $data = $request->validated();
 
-        $sections = $data['section_name'];
-
+        $sections    = $data['section_name'];
+     
         foreach ($sections as $sec) {
             $courseOffering = new CourseOffering([
                 'course_id'   => $data['course'],
                 'academic_id' => $data['academic_year'],
                 'year_level'  => $data['year_level'],
                 'section_id'  => $sec,
+
             ]);
             $courseOffering->save();
         }
@@ -129,12 +138,16 @@ class CourseOfferingController extends Controller
         $user   = Auth::user();
 
         //SEARCH QUERY
-        $course      = $request->input('course');
-        $school_year = $request->input('school_year');
-        $year_level  = $request->input('year_level');
+        $course           = $request->input('course');
+        $school_year      = $request->input('school_year');
+        $year_level       = $request->input('year_level');
+        $curriculum_year  = $request->input('curriculum_year');
 
         //get school year
         $get_school_year = DB::table('academic_years')->select('school_year', 'semester')->where('id', $school_year)->first();
+
+        //get semester
+        $get_semester = DB::table('academic_years')->select('semester', 'id')->where('id', $school_year)->first();
 
         // get course and Dean
         $get_course = DB::table('courses as c')->select(
@@ -173,7 +186,8 @@ class CourseOfferingController extends Controller
             )
             ->distinct()
             ->where('co.course_id', $course)
-            ->where('cur.academic_id', $school_year)
+            ->where('cur.efectivity_year', $curriculum_year)
+            ->where('cur.semester', $get_semester->semester)
             ->where('cur.year_level', $year_level)
             ->where('co.year_level', $year_level)
             ->where('co.academic_id', $school_year)
@@ -191,7 +205,8 @@ class CourseOfferingController extends Controller
             'program'         => $get_course,
             'course_id'       => $course,
             'academic_id'     => $school_year,
-            'year_level'      => $year_level
+            'year_level'      => $year_level,
+            'curriculum_year' => $curriculum_year
 
         ]);
     }
@@ -199,15 +214,19 @@ class CourseOfferingController extends Controller
     public function getPrint(Request $request)
     {
         //SEARCH QUERY
-        $course      = $request->input('course_id');
-        $school_year = $request->input('academic_id');
-        $year_level  = $request->input('year_level');
+        $course           = $request->input('course_id');
+        $school_year      = $request->input('academic_id');
+        $year_level       = $request->input('year_level');
+        $curriculum_year  = $request->input('curriculum_year');
 
         //get school year
         $get_school_year = DB::table('academic_years')
             ->select('school_year', 'semester')
             ->where('id', $school_year)
             ->first();
+        
+        //get semester
+        $get_semester = DB::table('academic_years')->select('semester', 'id')->where('id', $school_year)->first();
 
         // get course and Dean
         $get_course = DB::table('courses as c')
@@ -246,7 +265,8 @@ class CourseOfferingController extends Controller
             )
             ->distinct()
             ->where('co.course_id', $course)
-            ->where('cur.academic_id', $school_year)
+            ->where('cur.efectivity_year', $curriculum_year)
+            ->where('cur.semester', $get_semester->semester)
             ->where('cur.year_level', $year_level)
             ->where('co.year_level', $year_level)
             ->where('co.academic_id', $school_year)

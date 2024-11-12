@@ -6,7 +6,7 @@ import { Head, Link, useForm } from "@inertiajs/react";
 import SelectInput from "@/Components/SelectInput";
 import { useState } from "react";
 
-export default function Add({ auth, academic, courses, curr_edit, specialization }) {
+export default function Add({ auth, academic, courses, curr_edit, specialization, effectivity,semester }) {
     const { data, setData, post, errors, reset } = useForm({
         course_code: curr_edit.data.course_code || "",
         descriptive_title: curr_edit.data.descriptive_title || "",
@@ -19,6 +19,8 @@ export default function Add({ auth, academic, courses, curr_edit, specialization
         course_id : curr_edit.data.course_id ||"",
         academic_id : curr_edit.data.academic_id ||"",
         specialization_id : curr_edit.data.specialization_id || "",
+        efectivity_year : curr_edit.data.efectivity_year || "",
+        semester : curr_edit.data.semester || "",
         _method : "PUT"
     });
 
@@ -223,6 +225,42 @@ export default function Add({ auth, academic, courses, curr_edit, specialization
                                             ))}
                                         </SelectInput>
                                         <InputError message={errors.specialization_id} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel htmlFor="efectivity" value="Effectivity Year" />
+                                        <SelectInput
+                                            id="efectivity"
+                                            name="academic_id"
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("efectivity_year", e.target.value)}
+                                            value={data.efectivity_year}
+                                        >
+                                            <option value="" hidden>Select Academic Year</option>
+                                            {effectivity.map((acad) => (
+                                                <option key={acad.school_year} value={acad.school_year}>
+                                                    {acad.school_year}
+                                                </option>
+                                            ))}
+                                        </SelectInput>
+                                        <InputError message={errors.efectivity_year} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel htmlFor="Semester" value="Semester" />
+                                        <SelectInput
+                                            id="Semester"
+                                            name="semester"
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => setData("semester", e.target.value)}
+                                            value={data.semester}
+                                        >
+                                            <option value="" hidden>Select Semester</option>
+                                            {semester.map((acad) => (
+                                                <option key={acad.semester} value={acad.semester}>
+                                                    {acad.semester}
+                                                </option>
+                                            ))}
+                                        </SelectInput>
+                                        <InputError message={errors.semester} className="mt-2" />
                                     </div>
                                 </div>
 

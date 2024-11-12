@@ -96,21 +96,6 @@ export default function Add({ auth, program }) {
                       />
                       <InputError message={errors.password_confirmation} className="mt-2" />
                     </div>
-
-                    <div>
-                      <InputLabel htmlFor="faculty_role" value="Role" />
-                      <SelectInput
-                        id="faculty_role"
-                        name="role"
-                        className="mt-1 block w-full"
-                        onChange={(e) => setData("role", e.target.value)}
-                        value={data.role}
-                      >
-                        <option value="" hidden>Select Role</option>
-                        <option value="Faculty">Faculty</option>
-                      </SelectInput>
-                      <InputError message={errors.role} className="mt-2" />
-                    </div>
                   </div>
 
                   <div className="space-y-4">

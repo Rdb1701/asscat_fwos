@@ -7,6 +7,7 @@ export default function PrintableCurriculum({
     program,
     school_year,
     noDataFound,
+    curriculum_year,
     chairperson
 }) {
     useEffect(() => {
@@ -98,7 +99,7 @@ export default function PrintableCurriculum({
                     </h6>
                     <p>Revised Curriculum to conform with</p>
                     <p>CMO NO. 25 Series 2015 and CMO NO. 20 Series 2013</p>
-                    <p>Effective AY {school_year}</p>
+                    <p>Effective AY {curriculum_year}</p>
                 </div>
 
                 {isEmpty ? (

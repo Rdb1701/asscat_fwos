@@ -16,7 +16,8 @@ class FacultyLoad extends Model
         'contact_hours',
         'section',
         'administrative_id',
-        'research_load_id'
+        'research_load_id',
+        'academic_id'
         
     ];
 

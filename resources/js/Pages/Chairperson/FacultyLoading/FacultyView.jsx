@@ -530,7 +530,8 @@ export default function FacultyLoading({
                                                     Faculty Units: {semesterTotalUnits} | 
                                                     Administrative Load Units: {administrative_faculty_load} | 
                                                     Research Load Units: {research_faculty_load} |
-                                                    Total Units: {(parseFloat(semesterTotalUnits) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)).toFixed(2)}
+                                                    Total Units: {(parseFloat(semesterTotalUnits) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)).toFixed(2)} |
+                                                    Total Hours: {courses.reduce((acc, fl) => acc + parseFloat(fl.lec) + parseFloat(fl.lab), 0) + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load)}
                                                 </p>
                                             </div>
                                         </div>

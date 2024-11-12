@@ -34,9 +34,15 @@ class FacultyLoadController extends Controller
             ->distinct()
             ->get();
 
+        $curriculum_year = DB::table('curricula')
+            ->select('efectivity_year as school_year')
+            ->distinct()
+            ->get();
+
         return inertia("Chairperson/FacultyLoading/Index", [
             'faculty' => $query_faculty,
             'academic' => $academic,
+            'curriculum_year' => $curriculum_year,
             'success' => session('success')
         ]);
     }
@@ -143,7 +149,7 @@ class FacultyLoadController extends Controller
                 return response()->json(['success' => true, 'message' => $successMessage]);
 
             case "Part-Time":
-                if ($part_time_hour >= $maxHoursPartTime) {
+                if ($part_time_hour + $request->conctact_hours >= $maxHoursPartTime) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Adding this subject will exceed the maximum ' . $maxHoursPartTime . ' Hours for Part Time Instructors.',
@@ -154,7 +160,7 @@ class FacultyLoadController extends Controller
                 return response()->json(['success' => true, 'message' => $successMessage]);
 
             case "COS":
-                if ($part_time_hour >= $maxHoursCOS) {
+                if ($part_time_hour + $request->conctact_hours + $total_admin_research_load >= $maxHoursCOS) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Adding this subject will exceed the maximum ' . $maxHoursCOS . ' Hours for COS Instructors.',
@@ -265,15 +271,15 @@ class FacultyLoadController extends Controller
 
 
         return inertia("Chairperson/FacultyLoading/FacultyView", [
-            'faculty_id'    => $faculty_id,
-            'academic_year' => $academic_years,
-            'sections'      => $section,
-            'faculty_info'  => $query_faculty,
-            'facultyLoad'   => $faculty_load_query,
+            'faculty_id'                  => $faculty_id,
+            'academic_year'               => $academic_years,
+            'sections'                    => $section,
+            'faculty_info'                => $query_faculty,
+            'facultyLoad'                 => $faculty_load_query,
             'administrative_faculty_load' => $administrative_faculty_load,
-            'employment_status' => $get_user_employment_status,
-            'research_faculty_load' => $research_faculty_load,
-            'success'       => session('success')
+            'employment_status'           => $get_user_employment_status,
+            'research_faculty_load'       => $research_faculty_load,
+            'success'                     => session('success')
         ]);
     }
 
@@ -384,10 +390,12 @@ class FacultyLoadController extends Controller
     public function generateFacultyLoads(Request $request)
     {
         $data = $request->validate([
-            'academic_id' => ['required', 'exists:academic_years,id']
+            'academic_id'     => ['required', 'exists:academic_years,id'],
+            'curriculum_year' => ['required', 'max:255']
         ]);
 
         $academicYear = $data['academic_id'];
+        $curriculumYear = $data['curriculum_year'];
 
         $faculties = User::with(['specializations', 'employment'])
             ->whereHas('employment', function ($query) {
@@ -395,10 +403,12 @@ class FacultyLoadController extends Controller
             })
             ->get();
 
+
+
         $generatedLoads = [];
 
         foreach ($faculties as $faculty) {
-            $generatedLoad = $this->generateLoadForFaculty($faculty, $academicYear);
+            $generatedLoad = $this->generateLoadForFaculty($faculty, $academicYear, $curriculumYear);
             $generatedLoads[$faculty->id] = $generatedLoad;
         }
 
@@ -412,19 +422,23 @@ class FacultyLoadController extends Controller
             ->with('success', 'Successfully Generated Faculty Loads');
     }
 
-    private function generateLoadForFaculty($faculty, $academicYear)
+    private function generateLoadForFaculty($faculty, $academicYear, $curriculumYear)
     {
         $facultySpecializations = $faculty->specializations->pluck('id')->toArray();
-        $employmentStatus = $faculty->employment->employment_status;
+        $employmentStatus       = $faculty->employment->employment_status;
+
+        $get_semester    = DB::table('academic_years')->select('semester', 'id')->where('id', $academicYear)->first();
 
         $availableCurricula = Curriculum::whereIn('specialization_id', $facultySpecializations)
-            ->where('academic_id', $academicYear)
+            ->where('efectivity_year', $curriculumYear)
+            ->where('semester', $get_semester->semester)
             ->get();
 
         $currentLoad = $this->getCurrentFacultyLoad($faculty->id, $academicYear);
         $allocatedLoad = $this->allocateLoad($faculty, $availableCurricula, $currentLoad);
 
-        $this->saveFacultyLoad($faculty, $allocatedLoad, $academicYear, $currentLoad);
+
+        $this->saveFacultyLoad($faculty, $allocatedLoad, $academicYear, $currentLoad, $curriculumYear);
 
         return $allocatedLoad;
     }
@@ -438,23 +452,23 @@ class FacultyLoadController extends Controller
             ->with('curriculum')
             ->get();
 
-        $administrativeLoad = AdministrativeLoad::where('user_id', $facultyId)->sum('units');
-        $researchLoad = ResearchLoad::where('user_id', $facultyId)->sum('units');
+        $administrativeLoad  = AdministrativeLoad::where('user_id', $facultyId)->sum('units');
+        $researchLoad        = ResearchLoad::where('user_id', $facultyId)->sum('units');
 
         return [
-            'teaching' => $teachingLoad,
+            'teaching'       => $teachingLoad,
             'administrative' => $administrativeLoad,
-            'research' => $researchLoad,
+            'research'       => $researchLoad,
         ];
     }
 
     private function allocateLoad($faculty, $availableCurricula, $currentLoad)
     {
-        $maxUnits = $this->getMaxUnits($faculty->employment->employment_status);
+        $maxUnits        = $this->getMaxUnits($faculty->employment->employment_status);
         $maxPreparations = 4;
-        $allocatedLoad = [];
-        $totalUnits = $currentLoad['administrative'] + $currentLoad['research'];
-        $preparations = $currentLoad['teaching']->pluck('curriculum.course_code')->unique()->count();
+        $allocatedLoad   = [];
+        $totalUnits      = $currentLoad['administrative'] + $currentLoad['research'];
+        $preparations    = $currentLoad['teaching']->pluck('curriculum.course_code')->unique()->count();
 
         foreach ($availableCurricula as $curriculum) {
             $units = $curriculum->lec + ($curriculum->lab * 0.75);
@@ -505,14 +519,20 @@ class FacultyLoadController extends Controller
         }
     }
 
-    private function saveFacultyLoad($faculty, $generatedLoad, $academicYear, $currentLoad)
+    private function saveFacultyLoad($faculty, $generatedLoad, $academicYear, $currentLoad, $curriculumYear)
     {
+        //get semester
+        $get_semester = DB::table('academic_years')->select('semester', 'id')->where('id', $academicYear)->first();
+
         // Delete existing loads for this faculty and academic year
         FacultyLoad::where('user_id', $faculty->id)
-            ->whereHas('curriculum', function ($query) use ($academicYear) {
-                $query->where('academic_id', $academicYear);
+            ->where('academic_id', $academicYear)
+            ->whereHas('curriculum', function ($query) use ($curriculumYear, $get_semester) {
+                $query->where('efectivity_year', $curriculumYear)
+                    ->where('semester', $get_semester->semester);
             })
             ->delete();
+
 
         $maxUnits = $this->getMaxUnits($faculty->employment->employment_status);
         $totalUnits = $currentLoad['administrative'] + $currentLoad['research'];
@@ -541,6 +561,7 @@ class FacultyLoadController extends Controller
                     // Check if the section already has an instructor assigned
                     $existingLoad = FacultyLoad::where('curriculum_id', $curriculum->id)
                         ->where('section', $section->id)
+                        ->where('academic_id', $academicYear)
                         ->first();
 
                     if ($existingLoad) {
@@ -549,12 +570,13 @@ class FacultyLoadController extends Controller
                     }
 
                     FacultyLoad::create([
-                        'user_id' => $faculty->id,
-                        'curriculum_id' => $curriculum->id,
-                        'contact_hours' => $curriculum->lec + $curriculum->lab,
+                        'user_id'           => $faculty->id,
+                        'curriculum_id'     => $curriculum->id,
+                        'contact_hours'     => $curriculum->lec + $curriculum->lab,
                         'administrative_id' => null,
-                        'research_load_id' => null,
-                        'section' => $section->id,
+                        'research_load_id'  => null,
+                        'section'           => $section->id,
+                        'academic_id'       => $academicYear
                     ]);
 
                     $totalUnits += $units;
