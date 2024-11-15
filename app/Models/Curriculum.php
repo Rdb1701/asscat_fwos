@@ -23,7 +23,6 @@ class Curriculum extends Model
         'academic_id',
         'course_id',
         'year_level',
-        'specialization_id',
         'efectivity_year',
         'semester'
     ];

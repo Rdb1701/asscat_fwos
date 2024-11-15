@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Psy\Command\WhereamiCommand;
 
 class FacultyLoadController extends Controller
 {
@@ -62,6 +63,10 @@ class FacultyLoadController extends Controller
     {
         $data = $request->validated();
 
+        $get_semester = DB::table('academic_years')->select('semester', 'id')->where('id', $request->academic_id)->first();
+        $get_school_year = DB::table('academic_years')->select('school_year', 'id')->where('id', $request->academic_id)->first();
+
+
         // Fetch faculty data
         $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
             ->leftJoin('users_deparment as ud', 'ud.user_id', 'u.id')
@@ -73,7 +78,7 @@ class FacultyLoadController extends Controller
         $count_units_per_faculty = DB::table('faculty_loads as fl')
             ->leftJoin('curricula as cur', 'cur.id', '=', 'fl.curriculum_id')
             ->where('fl.user_id', $request->user_id)
-            ->where('cur.academic_id', $request->academic)
+            ->where('fl.academic_id', $request->academic_id)
             ->select(DB::raw('SUM(cur.lec) + SUM(cur.lab * 0.75) as total_units')) // Calculate total units
             ->value('total_units');
 
@@ -87,18 +92,19 @@ class FacultyLoadController extends Controller
         $count_preparations = DB::table('faculty_loads as fl')
             ->leftJoin('curricula as cur', 'cur.id', '=', 'fl.curriculum_id')
             ->where('fl.user_id', $request->user_id)
-            ->where('cur.academic_id', $request->academic)
+            ->where('fl.academic_id', $request->academic_id)
             ->select(DB::raw('COUNT(DISTINCT cur.course_code) as total'))
             ->value('total');
-
+        
         // Check if the curriculum ID already exists for the faculty
         $curriculum_id_exists = DB::table('faculty_loads as fl')
             ->leftJoin('curricula as cur', 'cur.id', '=', 'fl.curriculum_id')
             ->where('fl.user_id', $request->user_id)
-            ->where('cur.academic_id', $request->academic)
+            ->where('fl.academic_id', $request->academic_id)
             ->where('fl.curriculum_id', $request->curriculum_id)
             ->exists();
 
+        
         //administrative Load Units count
         $administrative_load = AdministrativeLoad::where('user_id', $request->user_id)
             ->sum('units');
@@ -108,12 +114,13 @@ class FacultyLoadController extends Controller
             ->sum('units');
 
         // IF PART TIME
-
         $part_time_hour = DB::table('faculty_loads as fl')
             ->leftJoin('curricula as cur', 'cur.id', 'fl.curriculum_id')
-            ->where('cur.academic_id', $request->academic)
+            ->where('fl.academic_id', $request->academic_id)
             ->where('fl.user_id', $request->user_id)
             ->sum('fl.contact_hours');
+
+  
 
         $total_admin_research_load = $administrative_load + $research_load;
 
@@ -237,7 +244,7 @@ class FacultyLoadController extends Controller
             ->leftJoin('administrative_loads as admin', 'admin.user_id', 'fl.user_id')
             ->leftJoin('research_loads as rl', 'rl.user_id', 'fl.user_id')
             ->leftJoin('sections as s', 's.id', 'fl.section')
-            ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
+            ->leftJoin('academic_years as acad', 'acad.id', 'fl.academic_id')
             ->select(
                 'fl.*',
                 'cur.course_code',
@@ -287,9 +294,14 @@ class FacultyLoadController extends Controller
     public function change(Request $request)
     {
         $academic_id = $request->input('academic_id');
+        $get_semester = DB::table('academic_years')->select('semester', 'id')->where('id', $academic_id)->first();
+        $school_year  = DB::table('academic_years')->select('school_year', 'id')->where('id', $academic_id)->first();
+
+
         $query = DB::table('curricula')
             ->select('*')
-            ->where('academic_id', $academic_id)
+            ->where('semester', $get_semester->semester)
+            ->where('efectivity_year', $school_year->school_year)
             ->get();
 
         return response()->json($query);
@@ -303,8 +315,7 @@ class FacultyLoadController extends Controller
 
         $user = Auth::user();
         $academic_year  = $request->input('academic_year_filter');
-        $faculty_id        = $request->input('user_id');
-
+        $faculty_id     = $request->input('user_id');
 
         //faculty data
         $query_faculty = DB::table('users as u')->select('u.*', 'ud.user_code_id', 'ue.employment_status')
@@ -313,15 +324,13 @@ class FacultyLoadController extends Controller
             ->where('u.id', $faculty_id)
             ->first();
 
-
-
         //faculty_load view
         $faculty_load_query = DB::table('faculty_loads as fl')
             ->leftJoin('curricula as cur', 'cur.id', 'fl.curriculum_id')
             ->leftJoin('administrative_loads as admin', 'admin.user_id', 'fl.user_id')
             ->leftJoin('research_loads as rl', 'rl.user_id', 'fl.user_id')
             ->leftJoin('sections as s', 's.id', 'fl.section')
-            ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
+            ->leftJoin('academic_years as acad', 'acad.id', 'fl.academic_id')
             ->select(
                 'fl.*',
                 'cur.course_code',
@@ -341,7 +350,7 @@ class FacultyLoadController extends Controller
                 'acad.semester'
             )
             ->where('fl.user_id', $faculty_id)
-            ->where('cur.academic_id', $academic_year)
+            ->where('fl.academic_id', $academic_year)
             ->get();
 
         //get academic year

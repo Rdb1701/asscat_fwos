@@ -7,9 +7,12 @@ use App\Models\Curriculum;
 use App\Http\Requests\StoreCurriculumRequest;
 use App\Http\Requests\UpdateCurriculumRequest;
 use App\Http\Resources\CurriculumResource;
+use App\Imports\CurriculumImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CurriculumController extends Controller
 {
@@ -21,7 +24,6 @@ class CurriculumController extends Controller
         $user = Auth::user();
 
         $query = DB::table('curricula as cur')
-            ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
             ->leftJoin('courses as c', 'c.id', 'cur.course_id')
             ->leftJoin('departments as d', 'd.id', 'c.department_id')
             ->leftJoin('specializations as s', 's.id', 'cur.specialization_id')
@@ -29,8 +31,6 @@ class CurriculumController extends Controller
                 'cur.*',
                 'c.course_name',
                 'd.department_name',
-                'acad.school_year',
-                'acad.semester as ac_semester',
                 's.name as specialization_name'
             )
             ->where('cur.course_id', $user->course_id)
@@ -49,6 +49,7 @@ class CurriculumController extends Controller
         return inertia("Chairperson/Curriculum/Index", [
             'curriculums' => CurriculumResource::collection($query),
             'success'     => session('success'),
+            'cur_error'   => session('cur_error'),
             'programs'    => $programs,
             'academic'    => $academic
         ]);
@@ -287,5 +288,46 @@ class CurriculumController extends Controller
             'curriculum_year'     => $curriculum_year
 
         ]);
+    }
+
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls',
+        ]);
+    
+        try {
+            $import = new CurriculumImport;
+            Excel::import($import, $request->file('excel_file'));
+    
+            $rowsImported = $import->getRowCount(); // Add this method to your CurriculumImport class
+    
+            Log::info('Curriculum import completed. Rows imported: ' . $rowsImported);
+    
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => 'Curriculum data imported successfully. Rows imported: ' . $rowsImported,
+            // ]);
+
+            return to_route('curriculum.index')->with([
+                'success' => 'Curriculum data imported successfully. Rows imported: ' . $rowsImported,
+                'message' => 'Curriculum data imported successfully. Rows imported: ' . $rowsImported,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error importing curriculum data: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+    
+            // return response()->json([
+            //     'success' => false,
+            //     'message' => 'Error importing curriculum data: ' . $e->getMessage(),
+            // ], 500);
+
+            return to_route('curriculum.index')->with([
+                'cur_error' => 'Error importing curriculum data: ' . $e->getMessage(),
+                'message' => 'Error importing curriculum data: ' . $e->getMessage(),
+            ]);
+        }
     }
 }

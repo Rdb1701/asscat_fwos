@@ -13,11 +13,13 @@ export default function Index({
     courses,
     success,
     courseOffering,
+    curriculumYear,
 }) {
     const { data, setData, post, errors, reset } = useForm({
         school_year: "",
         course: "",
         year_level: "",
+        curriculum_year : ""
     });
     useEffect(() => {
         $(document).ready(function () {
@@ -44,7 +46,7 @@ export default function Index({
     const handleSearch = (e) => {
         e.preventDefault();
 
-        if (data.school_year && data.course && data.year_level) {
+        if (data.school_year && data.course && data.year_level && data.curriculum_year) {
             router.get(route("getSearch.courseOffer"), data);
         } else {
             Swal.fire("", "Please Select Program / School Year / Year Level.", "error");
@@ -116,7 +118,7 @@ export default function Index({
                                                 htmlFor="program"
                                                 className="block text-sm font-medium text-white-700"
                                             >
-                                                Curriculum Year
+                                                Academic Year
                                             </label>
                                             <select
                                                 id="program"
@@ -132,7 +134,7 @@ export default function Index({
                                                 }
                                             >
                                                 <option value="" hidden>
-                                                    - Select Curriculum Year &
+                                                    - Select Academic Year &
                                                     Semester -
                                                 </option>
                                                 {academic.map((acad) => (
@@ -142,6 +144,40 @@ export default function Index({
                                                     >
                                                         {acad.school_year} -{" "}
                                                         {acad.semester}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                htmlFor="curriculumYear"
+                                                className="block text-sm font-medium text-white-700"
+                                            >
+                                                Curriculum
+                                            </label>
+                                            <select
+                                                id="curriculumYear"
+                                                name="curriculum_year"
+                                                className="mt-1 text-black block w-full pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                                value={data.curriculum_year}
+                                                autoFocus
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "curriculum_year",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            >
+                                                <option value="" hidden>
+                                                    - Choose From -
+                                                </option>
+                                                {curriculumYear.map((acad) => (
+                                                    <option
+                                                        key={acad.school_year}
+                                                        value={acad.school_year}
+                                                    >
+                                                        {acad.school_year} Curriculum
                                                     </option>
                                                 ))}
                                             </select>

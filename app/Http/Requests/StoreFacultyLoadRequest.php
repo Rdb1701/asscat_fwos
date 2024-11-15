@@ -31,13 +31,15 @@ class StoreFacultyLoadRequest extends FormRequest
             // Unique check for combination of curriculum_id and section
             Rule::unique('faculty_loads')->where(function ($query) {
                 return $query->where('curriculum_id', $this->curriculum_id)
-                             ->where('section', $this->section);
+                             ->where('section', $this->section)
+                             ->where('academic_id', $this->academic_id);
             })
         ],
             'contact_hours'      => ['required','max:255'],
             'administrative_id'  => ['max:255'],
             'research_load_id'   => ['max:255'],
             'section'            => ['required','max:255'],
+            'academic_id'        => ['required','max:255'],
     
         ];
     }

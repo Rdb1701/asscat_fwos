@@ -39,7 +39,7 @@ class FacultyLoadingController extends Controller
             ->leftJoin('administrative_loads as admin', 'admin.user_id', 'fl.user_id')
             ->leftJoin('research_loads as rl', 'rl.user_id', 'fl.user_id')
             ->leftJoin('sections as s', 's.id', 'fl.section')
-            ->leftJoin('academic_years as acad', 'acad.id', 'cur.academic_id')
+            ->leftJoin('academic_years as acad', 'acad.id', 'fl.academic_id')
             ->select(
                 'fl.*',
                 'cur.course_code',

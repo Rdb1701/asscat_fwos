@@ -3,7 +3,7 @@ import { Head } from "@inertiajs/react";
 import asscat from '../../../../../public/logo.png';
 
 export default function FacultyLoadingForm({ facultyLoad,faculty_info, administrative_faculty_load, research_faculty_load, academic_year, department, chair, admin_load, research_load }) {
-  const totalAcademicLoad = facultyLoad.reduce((acc, course) => acc + parseFloat(course.units), 0);
+  const totalAcademicLoad = facultyLoad.reduce((acc, course) => acc + parseFloat(course.cmo), 0);
   const totalLoad = totalAcademicLoad + parseFloat(administrative_faculty_load) + parseFloat(research_faculty_load);
 
   const [currentDate, setCurrentDate] = useState('');
@@ -103,7 +103,7 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
                 <td className='text-left'>{course.course_code}</td>
                 <td className='text-left'>{course.descriptive_title}</td>
                 <td>{course.section_name}</td>
-                <td>{course.units}</td>
+                <td>{course.cmo}</td>
                 <td>{course.lec}</td>
                 <td>{course.lab}</td>
                 <td>{(parseFloat(course.lec) + parseFloat(course.lab) * 0.75).toFixed(2)}</td>

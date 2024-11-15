@@ -25,8 +25,6 @@ class CurriculumResource extends JsonResource
             'cmo'               => $this->cmo,
             'hei'               => $this->hei,
             'pre_requisite'     => $this->pre_requisite,
-            'academic_id'       => $this->academic_id,
-            'school_year'       => $this->school_year,
             'semester'          => $this->semester,
             'course_id'         => $this->course_id,
             'course_name'       => $this->course_name,

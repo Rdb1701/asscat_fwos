@@ -29,6 +29,7 @@ class UpdateFacultyLoadRequest extends FormRequest
             'administrative_id'  => ['max:255'],
             'research_load_id'   => ['max:255'],
             'section'            => ['required','max:255'],
+            'academic_id'        => ['required','max:255'],
     
         ];
     }

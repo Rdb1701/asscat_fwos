@@ -235,7 +235,7 @@ export default function Add({ auth, academic, courses, specialization, effectivi
                                             id="efectivity"
                                             name="efectivity_year"
                                             className="mt-1 block w-full"
-                                            onChange={(e) => setData("academic_id", e.target.value)}
+                                            onChange={(e) => setData("efectivity_year", e.target.value)}
                                             value={data.efectivity_year}
                                         >
                                             <option value="" hidden>Select Effectivity Year</option>

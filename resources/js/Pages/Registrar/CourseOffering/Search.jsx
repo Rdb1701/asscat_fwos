@@ -16,6 +16,7 @@ export default function Index({
     course_id,
     academic_id,
     year_level,
+    curriculum_year
 }) {
     // Group the curriculum by section and program
     const groupBySection = courseOfferings.reduce((acc, cur) => {
@@ -35,6 +36,7 @@ export default function Index({
             course_id: course_id,
             academic_id: academic_id,
             year_level: year_level,
+            curriculum_year : curriculum_year
         });
     };
 

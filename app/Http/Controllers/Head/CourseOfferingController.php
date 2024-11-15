@@ -22,9 +22,9 @@ class CourseOfferingController extends Controller
         $query  = DB::table('academic_years')->select('*')->get();
 
         $curriculum_year  = DB::table('curricula')
-        ->select('efectivity_year as school_year')
-        ->distinct()
-        ->get();
+            ->select('efectivity_year as school_year')
+            ->distinct()
+            ->get();
 
         $query2 = DB::table('courses')->select('*')->where('id', $user->course_id)->get();
 
@@ -74,6 +74,19 @@ class CourseOfferingController extends Controller
         ]);
     }
 
+    public function change_course(Request $request)
+    {
+        $year_level = $request->input('year_level');
+        $user = Auth::user();
+
+        $sectionss = DB::table('sections')
+            ->where('course_id', $user->course_id)
+            ->where('year_level', $year_level)
+            ->get();
+
+        return response()->json($sectionss);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -82,7 +95,7 @@ class CourseOfferingController extends Controller
         $data = $request->validated();
 
         $sections    = $data['section_name'];
-     
+
         foreach ($sections as $sec) {
             $courseOffering = new CourseOffering([
                 'course_id'   => $data['course'],
@@ -224,7 +237,7 @@ class CourseOfferingController extends Controller
             ->select('school_year', 'semester')
             ->where('id', $school_year)
             ->first();
-        
+
         //get semester
         $get_semester = DB::table('academic_years')->select('semester', 'id')->where('id', $school_year)->first();
 

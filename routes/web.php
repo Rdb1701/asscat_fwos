@@ -92,6 +92,8 @@ Route::middleware('auth', 'chairperson')->group(function () {
 
     Route::get('curriculum_print',[CurriculumController::class, 'getPrint'])->name('getPrint.curriculum');
 
+    Route::post('curriculum/import', [CurriculumController::class, 'import'])->name('curriculum.import');
+
     Route::resource('faculty_file', FacultyController::class);
 
     Route::post('faculty_specialization/{id}', [FacultyController::class, 'store_specialization'])->name('faculty_specialization.store');
@@ -106,6 +108,9 @@ Route::middleware('auth', 'chairperson')->group(function () {
     Route::get('course_offeringSearch', [CourseOfferingController::class, 'getSearch'])->name('getSearch.courseOffering');
 
     Route::get('course_offeringPrint', [CourseOfferingController::class, 'getPrint'])->name('getPrint.courseOffering');
+
+    Route::get('course_offeringChange', [CourseOfferingController::class, 'change_course'])->name('change.courseOffering');
+
 
     //Faculty Load
     Route::resource('faculty_load', FacultyLoadController::class);

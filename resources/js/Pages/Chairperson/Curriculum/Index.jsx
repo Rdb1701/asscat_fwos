@@ -1,11 +1,15 @@
+'use client'
+
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import $ from "jquery";
 import "datatables.net/js/dataTables.min.mjs";
 import "datatables.net-dt/css/dataTables.dataTables.min.css";
-import { FaTrash, FaEdit, FaPlus } from "react-icons/fa";
+import { FaTrash, FaEdit, FaPlus, FaUpload, FaFileExcel  } from "react-icons/fa";
 import Swal from "sweetalert2";
+import { Dialog, Transition } from '@headlessui/react'
+import { Fragment } from 'react'
 
 export default function Index({
     auth,
@@ -13,12 +17,19 @@ export default function Index({
     programs,
     academic,
     success,
+    cur_error
 }) {
-    const { data, setData, post, errors, reset } = useForm({
+    const [isOpen, setIsOpen] = useState(false)
+    const cancelButtonRef = useRef(null)
+
+    const { data, setData, post, processing, errors, reset } = useForm({
         course: "",
         school_year: "",
-        curriculum_year : ""
+        curriculum_year: "",
+        excel_file: null,
     });
+
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         $(document).ready(function () {
@@ -55,6 +66,45 @@ export default function Index({
         });
     };
 
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        setData("excel_file", file);
+    };
+
+    const handleUploadSubmit = (e) => {
+        e.preventDefault();
+        
+        if (!data.excel_file) {
+            Swal.fire("", "Please select an Excel file to upload.", "error");
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append('excel_file', data.excel_file);
+    
+        post(route("curriculum.import"))
+       
+                setIsOpen(false)
+         
+                reset('excel_file');
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+       
+    };
+
+
+    const handleTemplate = () => {
+       
+        const fileUrl = '/CurriculumTemplate.xlsx'; 
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = 'CurriculumTemplate.xlsx'; 
+        document.body.appendChild(link);
+        link.click(); // Trigger the download
+        document.body.removeChild(link); // Clean up
+    };
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -64,13 +114,34 @@ export default function Index({
                         Curriculum Management
                     </h2>
 
-                    <Link
-                        href={route("curriculum.create")}
-                        className="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg px-4 py-2 transition duration-150 ease-in-out flex items-center"
-                    >
-                        <FaPlus className="mr-2" />
-                        <span>Add Subject</span>
-                    </Link>
+                    <div className="flex space-x-4">
+                        <Link
+                            href={route("curriculum.create")}
+                            className="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg px-4 py-2 transition duration-150 ease-in-out flex items-center"
+                        >
+                            <FaPlus className="mr-2" />
+                            <span>Add Subject</span>
+                        </Link>
+
+                        <button
+                            type="button"
+                            onClick={() => setIsOpen(true)}
+                            className="text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 rounded-lg px-4 py-2 transition duration-150 ease-in-out flex items-center"
+                        >
+                            <FaUpload className="mr-2" />
+                            <span>Upload Excel</span>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            onClick={handleTemplate}
+                            className="text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 rounded-lg px-4 py-2 transition duration-150 ease-in-out flex items-center"
+                        >
+                            <FaFileExcel className="mr-2" />
+                            <span>Download Template</span>
+                        </button>
+                    </div>
                 </div>
             }
         >
@@ -84,7 +155,6 @@ export default function Index({
                                 <div className="flex justify-between items-center mb-1">
                                     <div className="flex items-center space-x-1">
                                         {/* Program Dropdown */}
-
                                         <div>
                                             <label
                                                 htmlFor="program"
@@ -146,10 +216,9 @@ export default function Index({
                                                 <option value="" hidden>
                                                     - Select SY -
                                                 </option>
-                                                    <option value="2024-2025">2024-2025</option>
-                                                    <option value="2025-2026">2025-2026</option>
-                                                    <option value="2026-2027">2026-2027</option>
-                                                   
+                                                <option value="2024-2025">2024-2025</option>
+                                                <option value="2025-2026">2025-2026</option>
+                                                <option value="2026-2027">2026-2027</option>
                                             </select>
                                         </div>
 
@@ -208,6 +277,11 @@ export default function Index({
                             {success}
                         </div>
                     )}
+                    {cur_error && (
+                        <div className="bg-red-500 py-2 px-4 text-white rounded mb-4">
+                            {cur_error}
+                        </div>
+                    )}
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
                             <div className="overflow-x-auto">
@@ -217,34 +291,18 @@ export default function Index({
                                 >
                                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-200 dark:border-gray-600">
                                         <tr>
-                                            <th className="px-4 py-3">
-                                                Course Code
-                                            </th>
-                                            <th className="px-4 py-3">
-                                                Descriptive Title
-                                            </th>
+                                            <th className="px-4 py-3">Course Code</th>
+                                            <th className="px-4 py-3">Descriptive Title</th>
                                             <th className="px-4 py-3">CMO</th>
                                             <th className="px-4 py-3">HEI</th>
                                             <th className="px-4 py-3">LEC</th>
                                             <th className="px-4 py-3">LAB</th>
-                                            <th className="px-4 py-3">
-                                                Pre-requisite
-                                            </th>
-                                            <th className="px-4 py-3">
-                                                SPECIALIZATION
-                                            </th>
-                                            <th className="px-4 py-3">
-                                                PROGRAM
-                                            </th>
-                                            <th className="px-4 py-3">
-                                                SEMESTER
-                                            </th>
-                                            <th className="px-4 py-3">
-                                                EFFECTIVITY YEAR
-                                            </th>
-                                            <th className="px-4 py-3">
-                                                Action
-                                            </th>
+                                            <th className="px-4 py-3">Pre-requisite</th>
+                                            <th className="px-4 py-3">SPECIALIZATION</th>
+                                            <th className="px-4 py-3">PROGRAM</th>
+                                            <th className="px-4 py-3">SEMESTER</th>
+                                            <th className="px-4 py-3">EFFECTIVITY YEAR</th>
+                                            <th className="px-4 py-3">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -253,48 +311,21 @@ export default function Index({
                                                 key={cur.id}
                                                 className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                                             >
-                                                <td className="px-4 py-3">
-                                                    {cur.course_code}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.descriptive_title}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.cmo}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.hei}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.lec}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.lab}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.pre_requisite
-                                                        ? cur.pre_requisite
-                                                        : "None"}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.specialization_name ? cur.specialization_name : "None" }
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.course_name}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.semester}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {cur.efectivity_year}
-                                                </td>
+                                                <td className="px-4 py-3">{cur.course_code}</td>
+                                                <td className="px-4 py-3">{cur.descriptive_title}</td>
+                                                <td className="px-4 py-3">{cur.cmo}</td>
+                                                <td className="px-4 py-3">{cur.hei}</td>
+                                                <td className="px-4 py-3">{cur.lec}</td>
+                                                <td className="px-4 py-3">{cur.lab}</td>
+                                                <td className="px-4 py-3">{cur.pre_requisite ? cur.pre_requisite : "None"}</td>
+                                                <td className="px-4 py-3">{cur.specialization_name ? cur.specialization_name : "None"}</td>
+                                                <td className="px-4 py-3">{cur.course_name}</td>
+                                                <td className="px-4 py-3">{cur.semester}</td>
+                                                <td className="px-4 py-3">{cur.efectivity_year}</td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex space-x-2">
                                                         <Link
-                                                            href={route(
-                                                                "curriculum.edit",
-                                                                cur.id
-                                                            )}
+                                                            href={route("curriculum.edit", cur.id)}
                                                             className="text-blue-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-full p-2 transition duration-150 ease-in-out"
                                                             aria-label={`Edit ${cur.course_code}`}
                                                         >
@@ -318,6 +349,78 @@ export default function Index({
                     </div>
                 </div>
             </div>
+
+            <Transition appear show={isOpen} as={Fragment}>
+                <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 bg-black bg-opacity-25" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center">
+                            <Transition.Child
+                                as={Fragment}
+                                enter="ease-out duration-300"
+                                enterFrom="opacity-0 scale-95"
+                                enterTo="opacity-100 scale-100"
+                                leave="ease-in duration-200"
+                                leaveFrom="opacity-100 scale-100"
+                                leaveTo="opacity-0 scale-95"
+                            >
+                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                    <Dialog.Title
+                                        as="h3"
+                                        className="text-lg font-medium leading-6 text-gray-900"
+                                    >
+                                        Upload Excel File
+                                    </Dialog.Title>
+                                    <form onSubmit={handleUploadSubmit}>
+                                        <div className="mt-2">
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                onChange={handleFileUpload}
+                                                accept=".xlsx,.xls"
+                                                className="block w-full text-sm text-gray-500
+                                                file:mr-4 file:py-2 file:px-4
+                                                file:rounded-full file:border-0
+                                                file:text-sm file:font-semibold
+                                                file:bg-blue-50 file:text-blue-700
+                                                hover:file:bg-blue-100"
+                                            />
+                                        </div>
+
+                                        <div className="mt-4 flex justify-end space-x-2">
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
+                                                onClick={() => setIsOpen(false)}
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                                disabled={processing}
+                                            >
+                                                {processing ? 'Uploading...' : 'Upload'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </Dialog.Panel>
+                            </Transition.Child>
+                        </div>
+                    </div>
+                </Dialog>
+            </Transition>
         </AuthenticatedLayout>
     );
 }

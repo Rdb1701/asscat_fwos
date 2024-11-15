@@ -15,6 +15,8 @@ export default function Add({ auth, section, course, academic }) {
     year_level: ""
   })
 
+  const [yearLevel, setYearLevel] = useState([]);
+
   const handleSubmit = (e) => {
     e.preventDefault()
     post(route("course_offering.store"))
@@ -30,6 +32,22 @@ export default function Add({ auth, section, course, academic }) {
     }
     setData("section_name", value)
   }
+
+  const handleYearLevelChange = async (e) => {
+    const value = e.target.value;
+    setData("year_level", value);
+
+    try {
+        const response = await axios.get(route("change.courseOffering"), {
+            params: { year_level: value },
+        });
+        setYearLevel(response.data);
+    } catch (error) {
+        console.error("There was an error fetching the subjects:", error);
+    }
+};
+
+
 
   return (
     <Authenticatedlayout
@@ -95,35 +113,13 @@ export default function Add({ auth, section, course, academic }) {
                 </div>
 
                 <div className="mt-4">
-                  <InputLabel htmlFor="sec" value="Sections" />
-                  <SelectInput
-                    id="sec"
-                    name="section_name"
-                    value={data.section_name}
-                    className="mt-1 block w-full"
-                    onChange={handleSectionChange}
-                    multiple
-                  >
-                    {section.map((sec) => (
-                      <option value={sec.id} key={sec.id}>
-                        {sec.section_name}
-                      </option>
-                    ))}
-                  </SelectInput>
-                  <InputError message={errors.section_name} className="mt-2" />
-                  <p className="mt-1 text-sm text-gray-500">
-                    Hold Ctrl (Windows) or Command (Mac) to select multiple sections.
-                  </p>
-                </div>
-
-                <div className="mt-4">
                   <InputLabel htmlFor="year" value="Year Level" />
                   <SelectInput
                     id="year"
                     name="year_level"
                     value={data.year_level}
                     className="mt-1 block w-full"
-                    onChange={(e) => setData("year_level", e.target.value)}
+                    onChange={handleYearLevelChange}
                   >
                     <option value="" hidden>
                       - Select Year Level -
@@ -135,6 +131,30 @@ export default function Add({ auth, section, course, academic }) {
                   </SelectInput>
                   <InputError message={errors.year_level} className="mt-2" />
                 </div>
+              
+              {yearLevel.length > 0 && (
+                <div className="mt-4">
+                  <InputLabel htmlFor="sec" value="Sections" />
+                  <SelectInput
+                    id="sec"
+                    name="section_name"
+                    value={data.section_name}
+                    className="mt-1 block w-full"
+                    onChange={handleSectionChange}
+                    multiple
+                  >
+                    {yearLevel.map((sec) => (
+                      <option value={sec.id} key={sec.id}>
+                        {sec.section_name}
+                      </option>
+                    ))}
+                  </SelectInput>
+                  <InputError message={errors.section_name} className="mt-2" />
+                  <p className="mt-1 text-sm text-gray-500">
+                    Hold Ctrl (Windows) or Command (Mac) to select multiple sections.
+                  </p>
+                </div>
+              )}
                 <div className="mt-4 text-right">
                   <Link
                     href={route("course_offering.index")}

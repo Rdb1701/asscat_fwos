@@ -24,7 +24,7 @@ export default function FacultyLoading({
 }) {
     const { data, setData, errors, post } = useForm({
         user_id: faculty_id || "",
-        academic: "",
+        academic_id: "",
         curriculum_id: "",
         contact_hours: "",
         section: "",
@@ -55,7 +55,7 @@ export default function FacultyLoading({
 
     const handleAcademicChange = async (e) => {
         const value = e.target.value;
-        setData("academic", value);
+        setData("academic_id", value);
 
         try {
             const response = await axios.get(route("faculty_load.change"), {
@@ -329,9 +329,9 @@ export default function FacultyLoading({
                                                 </label>
                                                 <select
                                                     id="acad_year"
-                                                    name="academic"
+                                                    name="academic_id"
                                                     className="text-black mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                                                    value={data.academic}
+                                                    value={data.academic_id}
                                                     onChange={handleAcademicChange}
                                                 >
                                                     <option value="" hidden>- Select Academic Year -</option>
@@ -341,7 +341,7 @@ export default function FacultyLoading({
                                                         </option>
                                                     ))}
                                                 </select>
-                                                <InputError message={errors.academic} className="mt-2" />
+                                                <InputError message={errors.academic_id} className="mt-2" />
                                             </div>
 
                                             {subjects.length > 0 && (
