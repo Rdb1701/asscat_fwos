@@ -191,24 +191,7 @@ export default function Add({ auth, academic, courses, curr_edit, specialization
                                         <InputError message={errors.course_id} className="mt-2" />
                                     </div>
 
-                                    <div>
-                                        <InputLabel htmlFor="academic" value="Academic Year" />
-                                        <SelectInput
-                                            id="academic"
-                                            name="academic_id"
-                                            className="mt-1 block w-full"
-                                            onChange={(e) => setData("academic_id", e.target.value)}
-                                            value={data.academic_id}
-                                        >
-                                            <option value="" hidden>Select Academic Year</option>
-                                            {academic.map((acad) => (
-                                                <option key={acad.id} value={acad.id}>
-                                                    {acad.school_year} - {acad.semester}
-                                                </option>
-                                            ))}
-                                        </SelectInput>
-                                        <InputError message={errors.academic_id} className="mt-2" />
-                                    </div>
+
                                     <div>
                                         <InputLabel htmlFor="special_" value="Specilization" />
                                         <SelectInput
@@ -230,12 +213,12 @@ export default function Add({ auth, academic, courses, curr_edit, specialization
                                         <InputLabel htmlFor="efectivity" value="Effectivity Year" />
                                         <SelectInput
                                             id="efectivity"
-                                            name="academic_id"
+                                            name="efectivity_year"
                                             className="mt-1 block w-full"
                                             onChange={(e) => setData("efectivity_year", e.target.value)}
                                             value={data.efectivity_year}
                                         >
-                                            <option value="" hidden>Select Academic Year</option>
+                                            <option value="" hidden>Select Effectivity Year</option>
                                             {effectivity.map((acad) => (
                                                 <option key={acad.school_year} value={acad.school_year}>
                                                     {acad.school_year}

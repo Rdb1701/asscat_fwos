@@ -46,7 +46,7 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
           }
         `}</style>
       </Head>
-      <div className="faculty-loading-form">
+      <div className="faculty-loading-form" style={{fontFamily: "Times New Roman, Times, serif"}}>
         <header>
           <div className="logo-container">
             <img src={asscat} alt="College Logo" className="logo" />

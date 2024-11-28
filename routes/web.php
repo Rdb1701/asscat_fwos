@@ -125,6 +125,8 @@ Route::middleware('auth', 'chairperson')->group(function () {
 
     Route::get('faculty_load_print', [FacultyLoadController::class, 'getPrint'])->name('getPrint.facultyLoad');
 
+    Route::get('faculty_load_all_print', [FacultyLoadController::class, 'getAllPrint'])->name('getAllPrint.facultyLoad');
+
     Route::get('facultyAdmin_load', [AdminLoadController::class, 'admin_load_view'])->name('faculty_load.view');
 
     Route::get('facultyResearch_load', [ResearchLoadController::class, 'research_load_view'])->name('research_load.view');

@@ -7,12 +7,13 @@ import InputError from "@/Components/InputError"
 import InputLabel from "@/Components/InputLabel"
 import SelectInput from "@/Components/SelectInput"
 
-export default function Add({ auth, section, course, academic }) {
+export default function Add({ auth, section, course, academic,effectivity }) {
   const { data, setData, post, errors } = useForm({
     section_name: [],
     course: "",
     academic_year: "",
-    year_level: ""
+    year_level: "",
+    effectivity_year : ""
   })
 
   const [yearLevel, setYearLevel] = useState([]);
@@ -89,6 +90,27 @@ export default function Add({ auth, section, course, academic }) {
                     ))}
                   </SelectInput>
                   <InputError message={errors.academic_year} className="mt-2" />
+                </div>
+
+                <div className="mt-4">
+                  <InputLabel htmlFor="curr" value="Curriculum" />
+                  <SelectInput
+                    id="curr"
+                    name="effectivity_year"
+                    value={data.effectivity_year}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData("effectivity_year", e.target.value)}
+                  >
+                    <option value="" hidden>
+                      - Select Curriculum -
+                    </option>
+                    {effectivity.map((acad) => (
+                      <option value={acad.school_year} key={acad.school_year}>
+                      Curriculum - {acad.school_year}
+                      </option>
+                    ))}
+                  </SelectInput>
+                  <InputError message={errors.effectivity_year} className="mt-2" />
                 </div>
 
                 <div className="mt-4">

@@ -14,7 +14,8 @@ class CourseOffering extends Model
         'year_level',
         'academic_id',
         'course_id',
-        'section_id'
+        'section_id',
+        'effectivity_year'
     ];
 
     public function academicYear(): BelongsTo

@@ -24,6 +24,7 @@ class Curriculum extends Model
         'course_id',
         'year_level',
         'efectivity_year',
+        'specialization_id',
         'semester'
     ];
 

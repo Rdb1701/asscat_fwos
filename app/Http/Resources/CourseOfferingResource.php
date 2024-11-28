@@ -15,10 +15,11 @@ class CourseOfferingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'year_level'  => $this->year_level,
-            'academic_id' => $this->academic_id,
-            'course_id'   => $this->course_id,
-            'section_id'  => $this->section_id
+            'year_level'       => $this->year_level,
+            'academic_id'      => $this->academic_id,
+            'course_id'        => $this->course_id,
+            'section_id'       => $this->section_id,
+            'effectivity_year' => $this->effectivity_year
         ];
     }
 }

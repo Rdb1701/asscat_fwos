@@ -194,24 +194,6 @@ export default function Add({ auth, academic, courses, specialization, effectivi
                                     </div>
 
                                     <div>
-                                        <InputLabel htmlFor="academic" value="Academic Year" />
-                                        <SelectInput
-                                            id="academic"
-                                            name="academic_id"
-                                            className="mt-1 block w-full"
-                                            onChange={(e) => setData("academic_id", e.target.value)}
-                                            value={data.academic_id}
-                                        >
-                                            <option value="" hidden>Select Academic Year</option>
-                                            {academic.map((acad) => (
-                                                <option key={acad.id} value={acad.id}>
-                                                    {acad.school_year} - {acad.semester}
-                                                </option>
-                                            ))}
-                                        </SelectInput>
-                                        <InputError message={errors.academic_id} className="mt-2" />
-                                    </div>
-                                    <div>
                                         <InputLabel htmlFor="special_" value="Specilization" />
                                         <SelectInput
                                             id="special_"

@@ -40,4 +40,14 @@ class FacultyLoad extends Model
     {
         return $this->belongsTo(ResearchLoad::class, 'research_load_id');
     }
+
+    public function sections(): BelongsTo
+    {
+        return $this->belongsTo(Section::class, 'section', 'id');
+    }
+
+    public function academicYear(): BelongsTo
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
 }

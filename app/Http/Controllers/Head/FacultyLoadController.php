@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\FacultyLoad;
 use App\Http\Requests\StoreFacultyLoadRequest;
 use App\Http\Requests\UpdateFacultyLoadRequest;
+use App\Models\AcademicYear;
 use App\Models\AdministrativeLoad;
+use App\Models\Course;
 use App\Models\CourseOffering;
 use App\Models\Curriculum;
 use App\Models\ResearchLoad;
@@ -15,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 use Psy\Command\WhereamiCommand;
 
 class FacultyLoadController extends Controller
@@ -95,7 +98,7 @@ class FacultyLoadController extends Controller
             ->where('fl.academic_id', $request->academic_id)
             ->select(DB::raw('COUNT(DISTINCT cur.course_code) as total'))
             ->value('total');
-        
+
         // Check if the curriculum ID already exists for the faculty
         $curriculum_id_exists = DB::table('faculty_loads as fl')
             ->leftJoin('curricula as cur', 'cur.id', '=', 'fl.curriculum_id')
@@ -104,7 +107,7 @@ class FacultyLoadController extends Controller
             ->where('fl.curriculum_id', $request->curriculum_id)
             ->exists();
 
-        
+
         //administrative Load Units count
         $administrative_load = AdministrativeLoad::where('user_id', $request->user_id)
             ->sum('units');
@@ -120,7 +123,7 @@ class FacultyLoadController extends Controller
             ->where('fl.user_id', $request->user_id)
             ->sum('fl.contact_hours');
 
-  
+
 
         $total_admin_research_load = $administrative_load + $research_load;
 
@@ -394,6 +397,57 @@ class FacultyLoadController extends Controller
             'success'       => session('success')
         ]);
     }
+
+
+    //PRINT ALL FACULTY LOADS
+    public function getAllPrint(Request $request)
+    {
+        $user = Auth::user();
+        $academic_year_id = $request->input('academic_year_filter');
+    
+        // Get all faculty users
+        $faculty_users = User::where(function ($query) {
+            $query->where('role', 'Faculty')
+                  ->orWhere('role', 'Chairperson');
+        })
+        ->where('course_id', $user->course_id)
+        ->with([
+            'department',
+            'employment',
+            'administrativeLoads',
+            'researchLoads',
+            'facultyLoads' => function ($query) use ($academic_year_id) {
+                $query->where('academic_id', $academic_year_id)
+                      ->with(['curriculum', 'sections', 'academicYear']);
+            }
+        ])
+        ->get();
+    
+        // Get academic year
+        $academic_year = AcademicYear::findOrFail($academic_year_id);
+    
+        // Get course and department info
+        $course = Course::with(['department', 'department.users' => function ($query) {
+            $query->where('role', 'Dean');
+        }])->findOrFail($user->course_id);
+    
+        // Get chairperson
+        $chairperson = User::where('course_id', $user->course_id)
+                           ->where('role', 'Chairperson')
+                           ->first();
+    
+        return Inertia::render("Chairperson/FacultyLoading/Print3", [
+            'faculty_users' => $faculty_users,
+            'academic_year' => $academic_year,
+            'department'    => $course->department,
+            'course'        => $course,
+            'dean'          => $course->department->users->first(),
+            'chair'         => $chairperson,
+            'success'       => session('success')
+        ]);
+    }
+    
+    
 
 
     public function generateFacultyLoads(Request $request)

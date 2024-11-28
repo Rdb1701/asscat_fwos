@@ -66,11 +66,14 @@ class CourseOfferingController extends Controller
             ->where('course_id', $user->course_id)
             ->get();
 
+        $effectivity = DB::table('academic_years')->select('school_year')->distinct()->get();
+
 
         return inertia("Chairperson/CourseOffering/Add", [
-            'academic' => $academic,
-            'course'   => $course,
-            'section'  => $section
+            'academic'    => $academic,
+            'course'      => $course,
+            'section'     => $section,
+            'effectivity' => $effectivity
         ]);
     }
 
@@ -101,6 +104,7 @@ class CourseOfferingController extends Controller
                 'course_id'   => $data['course'],
                 'academic_id' => $data['academic_year'],
                 'year_level'  => $data['year_level'],
+                'effectivity_year'  => $data['effectivity_year'],
                 'section_id'  => $sec,
 
             ]);
@@ -154,7 +158,16 @@ class CourseOfferingController extends Controller
         $course           = $request->input('course');
         $school_year      = $request->input('school_year');
         $year_level       = $request->input('year_level');
-        $curriculum_year  = $request->input('curriculum_year');
+        //$curriculum_year  = $request->input('curriculum_year');
+
+        $get_curriculum_year = DB::table('course_offerings')->select('effectivity_year')
+            ->where('academic_id', $school_year)
+            ->where('year_level', $year_level)
+            ->where('course_id', $course)
+            ->first();
+
+        // Check if a result is found and extract the effectivity year
+        $effectivity_year = $get_curriculum_year ? $get_curriculum_year->effectivity_year : null;
 
         //get school year
         $get_school_year = DB::table('academic_years')->select('school_year', 'semester')->where('id', $school_year)->first();
@@ -199,7 +212,7 @@ class CourseOfferingController extends Controller
             )
             ->distinct()
             ->where('co.course_id', $course)
-            ->where('cur.efectivity_year', $curriculum_year)
+            ->where('cur.efectivity_year', $effectivity_year)
             ->where('cur.semester', $get_semester->semester)
             ->where('cur.year_level', $year_level)
             ->where('co.year_level', $year_level)
@@ -219,7 +232,7 @@ class CourseOfferingController extends Controller
             'course_id'       => $course,
             'academic_id'     => $school_year,
             'year_level'      => $year_level,
-            'curriculum_year' => $curriculum_year
+            'curriculum_year' => $get_curriculum_year
 
         ]);
     }

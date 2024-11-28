@@ -46,7 +46,7 @@ export default function Index({
     const handleSearch = (e) => {
         e.preventDefault();
 
-        if (data.school_year && data.course && data.year_level && data.curriculum_year) {
+        if (data.school_year && data.course && data.year_level) {
             router.get(route("getSearch.courseOffering"), data);
         } else {
             Swal.fire("", "Please Select Program / Academic Year /Curriculum / Year Level.", "error");
@@ -157,7 +157,7 @@ export default function Index({
                                             </select>
                                         </div>
 
-                                        <div>
+                                        {/* <div>
                                             <label
                                                 htmlFor="curriculumYear"
                                                 className="block text-sm font-medium text-white-700"
@@ -189,7 +189,7 @@ export default function Index({
                                                     </option>
                                                 ))}
                                             </select>
-                                        </div>
+                                        </div> */}
 
                                         <div>
                                             <label
@@ -276,6 +276,9 @@ export default function Index({
                                             <th className="px-4 py-3">
                                                 Semester
                                             </th>
+                                            <th className="px-4 py-3">
+                                                Curriculum
+                                            </th>
 
                                             <th className="px-4 py-3">
                                                 Action
@@ -302,6 +305,9 @@ export default function Index({
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {c.semester}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    {c.effectivity_year}
                                                 </td>
 
                                                 <td className="px-4 py-3">

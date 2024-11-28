@@ -24,9 +24,10 @@ class StoreCourseOfferingRequest extends FormRequest
         return [
             'section_name'       => 'required|array',
             'section_name.*'     => 'exists:sections,id',
-            'course'        => 'required|integer|exists:courses,id',
-            'academic_year' => 'required|integer|exists:academic_years,id',
-            'year_level'    => 'required|string',
+            'course'             => 'required|integer|exists:courses,id',
+            'academic_year'      => 'required|integer|exists:academic_years,id',
+            'year_level'         => 'required|string',
+            'effectivity_year'   => 'required|string',
         ];
     }
 }

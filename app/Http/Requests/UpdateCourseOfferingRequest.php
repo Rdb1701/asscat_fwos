@@ -25,7 +25,8 @@ class UpdateCourseOfferingRequest extends FormRequest
             'year_level'        => ['required','max:255'],
             'academic_id'       => ['required','max:255'],
             'course_id'         => ['required','max:255'],
-            'section_id'        => ['required','max:255']
+            'section_id'        => ['required','max:255'],
+            'effectivity_year'   => 'required|string',
          ];
     }
 }
