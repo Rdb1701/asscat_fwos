@@ -11,6 +11,7 @@ import {
     FaBook,
     FaClipboardList,
 } from "react-icons/fa";
+import { GoNumber } from "react-icons/go";
 import { FaSchool, FaClipboardCheck, FaBookOpenReader } from "react-icons/fa6";
 import { MdClass } from "react-icons/md";
 import { GiTeacher } from "react-icons/gi";
@@ -94,6 +95,19 @@ export default function Authenticated({ user, header, children }) {
                                             style={{ marginRight: "8px" }}
                                         />{" "}
                                         Course Offering
+                                    </NavLink>
+
+                                    
+                                    <NavLink
+                                        href={route("document_number.index")}
+                                        active={route().current(
+                                            "document_number.index"
+                                        )}
+                                    >
+                                        <GoNumber
+                                            style={{ marginRight: "8px" }}
+                                        />{" "}
+                                        Document Number
                                     </NavLink>
                                 </div>
                             )}

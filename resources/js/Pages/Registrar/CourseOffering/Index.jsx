@@ -19,7 +19,7 @@ export default function Index({
         school_year: "",
         course: "",
         year_level: "",
-        curriculum_year : ""
+       // curriculum_year : ""
     });
     useEffect(() => {
         $(document).ready(function () {
@@ -46,7 +46,7 @@ export default function Index({
     const handleSearch = (e) => {
         e.preventDefault();
 
-        if (data.school_year && data.course && data.year_level && data.curriculum_year) {
+        if (data.school_year && data.course && data.year_level) {
             router.get(route("getSearch.courseOffer"), data);
         } else {
             Swal.fire("", "Please Select Program / School Year / Year Level.", "error");
@@ -149,7 +149,7 @@ export default function Index({
                                             </select>
                                         </div>
 
-                                        <div>
+                                        {/* <div>
                                             <label
                                                 htmlFor="curriculumYear"
                                                 className="block text-sm font-medium text-white-700"
@@ -181,7 +181,7 @@ export default function Index({
                                                     </option>
                                                 ))}
                                             </select>
-                                        </div>
+                                        </div> */}
 
                                         <div>
                                             <label

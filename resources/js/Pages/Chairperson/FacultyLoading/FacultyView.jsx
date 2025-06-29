@@ -36,6 +36,7 @@ export default function FacultyLoading({
     });
 
     const [subjects, setSubjects] = useState([]);
+    const [curriculum, setCurriculum] = useState([]);
 
     // Group the curriculum by year level and semester
     const groupByYearAndSemester = facultyLoad.reduce((acc, cur) => {
@@ -66,6 +67,20 @@ export default function FacultyLoading({
             console.error("There was an error fetching the subjects:", error);
         }
     };
+
+    const handleCurriculumChange = async (e) => {
+        const value = e.target.value;
+        setData("curriculum_id", value);
+
+        try {
+            const response = await axios.get(route("faculty_curriculum.change"), {
+                params: { curriculum_id: value },
+            });
+            setCurriculum(response.data);
+        } catch (error) {
+            console.error("There was an error fetching the subjects:", error);
+        }
+    }
 
     const handleDelete = (fl) => {
         Swal.fire({
@@ -357,7 +372,8 @@ export default function FacultyLoading({
                                                             name="curriculum_id"
                                                             className="text-black mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                                                             value={data.curriculum_id}
-                                                            onChange={(e) => setData("curriculum_id", e.target.value)}
+                                                           // onChange={(e) => setData("curriculum_id", e.target.value)}
+                                                           onChange={handleCurriculumChange}
                                                         >
                                                             <option value="" hidden>Select Subject</option>
                                                             {subjects.map((sub) => (
@@ -368,8 +384,12 @@ export default function FacultyLoading({
                                                         </select>
                                                         <InputError message={errors.curriculum_id} className="mt-2" />
                                                     </div>
+                                                </>
+                                            )}
 
-                                                    <div>
+                                            {curriculum.length > 0 &&(
+                                                <>
+                                                <div>
                                                         <InputLabel
                                                             htmlFor="section"
                                                             value="Section"
@@ -383,7 +403,7 @@ export default function FacultyLoading({
                                                             onChange={(e) => setData("section", e.target.value)}
                                                         >
                                                             <option value="" hidden>Select Section</option>
-                                                            {sections.map((sec) => (
+                                                            {curriculum.map((sec) => (
                                                                 <option key={sec.id} value={sec.id}>
                                                                     {sec.section_name}
                                                                 </option>

@@ -5,18 +5,21 @@ import TextInput from "@/Components/TextInput";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import SelectInput from "@/Components/SelectInput";
 import { useState } from "react";
+import { method } from "lodash";
 
-export default function Add({ auth }) {
+export default function Add({ auth, document_edit }) {
     const { data, setData, post, errors, reset } = useForm({
-        section_name: "",
-        section_count: "",
-        year_level: "",
+        document_number: document_edit.document_number || "",
+        revision_number: document_edit.revision_number || "",
+        effective_date: document_edit. effective_date || "",
+        for: document_edit.for || "",
+        _method: "PUT"
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        post(route("section.store"));
+        post(route("document_number.update", document_edit.id ));
     };
 
     return (
@@ -25,13 +28,12 @@ export default function Add({ auth }) {
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                        Create Section
+                        Create Doc No.
                     </h2>
                 </div>
             }
         >
-            <Head title="Class Management" />
-
+            <Head title="Document Number" />
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -41,94 +43,111 @@ export default function Add({ auth }) {
                                 className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg"
                             >
                                 <div className="mt-4">
-                                    {/* <InputLabel
-                                        htmlFor="college"
-                                        value="Section Code"
-                                    />
-                                    <TextInput
-                                        id="college"
-                                        type="text"
-                                        name="section_name"
-                                        value={data.section_name}
-                                        className="mt-1 block w-full"
-                                        isFocused={true}
-                                        onChange={(e) =>
-                                            setData(
-                                                "section_name",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-
-                                    <InputError
-                                        message={errors.section_name}
-                                        className="mt-2"
-                                    /> */}
-
                                     <InputLabel
                                         htmlFor="college"
-                                        value="Section Count"
+                                        value="Document Number"
                                     />
                                     <TextInput
-                                        id="college"
+                                        id="doc_no"
                                         type="text"
-                                        name="section_name"
-                                        value={data.section_count}
+                                        name="document_number"
+                                        value={data.document_number}
                                         className="mt-1 block w-full"
                                         isFocused={true}
                                         onChange={(e) =>
                                             setData(
-                                                "section_count",
+                                                "document_number",
                                                 e.target.value
                                             )
                                         }
                                     />
 
                                     <InputError
-                                        message={errors.section_count}
+                                        message={errors.document_number}
                                         className="mt-2"
                                     />
                                 </div>
                                 <div className="mt-4">
-                                    <InputLabel htmlFor="year" value="Role" />
-                                    <SelectInput
-                                        id="year"
-                                        name="year_level"
+                                    <InputLabel
+                                        htmlFor="revision"
+                                        value="Revision Number"
+                                    />
+                                    <TextInput
+                                        id="rev_no"
+                                        type="text"
+                                        name="revision_number"
+                                        value={data.revision_number}
                                         className="mt-1 block w-full"
+                                        isFocused={true}
                                         onChange={(e) =>
                                             setData(
-                                                "year_level",
+                                                "revision_number",
                                                 e.target.value
                                             )
                                         }
-                                        value={data.year_level}
-                                    >
-                                        <option value="" selected hidden>
-                                            Select Year
-                                        </option>
-
-                                        <option value="First Year">
-                                            First Year
-                                        </option>
-                                        <option value="Second Year">
-                                            Second Year
-                                        </option>
-                                        <option value="Third Year">
-                                            Third Year
-                                        </option>
-                                        <option value="Fourth Year">
-                                            Fourth Year
-                                        </option>
-                                    </SelectInput>
+                                    />
 
                                     <InputError
-                                        message={errors.year_level}
+                                        message={errors.revision_number}
                                         className="mt-2"
                                     />
                                 </div>
+                                <div className="mt-4">
+                                    <InputLabel
+                                        htmlFor="Effective Date"
+                                        value="Effectivity Date"
+                                    />
+                                    <TextInput
+                                        id="effective_date"
+                                        type="date"
+                                        name="effective_date"
+                                        value={data.effective_date}
+                                        className="mt-1 block w-full"
+                                        isFocused={true}
+                                        onChange={(e) =>
+                                            setData(
+                                                "effective_date",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+
+                                    <InputError
+                                        message={errors.effective_date}
+                                        className="mt-2"
+                                    />
+                                </div>
+
+                                <div className="mt-4">
+                                    <InputLabel htmlFor="sem" value="For" />
+                                    <SelectInput
+                                        id="fors"
+                                        name="for"
+                                        className="mt-1 block w-full"
+                                        onChange={(e) =>
+                                            setData("for", e.target.value)
+                                        }
+                                        value={data.for}
+                                    >
+                                        <option value="" selected hidden>
+                                            Select
+                                        </option>
+                                        <option value="Course Offering">
+                                            Course Offering
+                                        </option>
+                                        <option value="Faculty Loads">
+                                            Faculty Loads
+                                        </option>
+                                    </SelectInput>
+                                    <InputError
+                                        message={errors.for}
+                                        className="mt-2"
+                                    />
+                                </div>
+
                                 <div className="mt-4 text-right">
                                     <Link
-                                        href={route("section.index")}
+                                        href={route("documnet_number.index")}
                                         className="bg-gray-100 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2"
                                     >
                                         Cancel

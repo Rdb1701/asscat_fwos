@@ -55,6 +55,7 @@ class CourseOfferingController extends Controller
     /**
      * Show the form for creating a new resource.
      */
+    
     public function create()
     {
         $user     = Auth::user();
@@ -239,6 +240,7 @@ class CourseOfferingController extends Controller
 
     public function getPrint(Request $request)
     {
+
         //SEARCH QUERY
         $course           = $request->input('course_id');
         $school_year      = $request->input('academic_id');
@@ -253,6 +255,12 @@ class CourseOfferingController extends Controller
 
         //get semester
         $get_semester = DB::table('academic_years')->select('semester', 'id')->where('id', $school_year)->first();
+
+        //GET DOCUMENT & REVISION NUMBER
+        $document_number = DB::table('document_numbers')
+            ->select('*', DB::raw("DATE_FORMAT(effective_date, '%m/%d/%Y') as effectivity_date"))
+            ->where('for', 'Course Offering')
+            ->get();
 
         // get course and Dean
         $get_course = DB::table('courses as c')
@@ -308,6 +316,7 @@ class CourseOfferingController extends Controller
             'courseOfferings' => $course_offering,
             'school_year'     => $get_school_year,
             'program'         => $get_course,
+            'doc_files'       => $document_number
         ]);
     }
 }

@@ -25,11 +25,8 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default function FacultyLoadingPrint({ faculty_users, academic_year, department, course, dean, chair, doc_files }) {
+export default function FacultyLoadingPrint({ faculty_users, academic_year, department, course, dean, chair }) {
   const [facultyData, setFacultyData] = useState(faculty_users);
-  const [selectedDocNumber, setSelectedDocNumber] = useState(doc_files[0]?.document_number || '');
-  const [selectedRevNumber, setSelectedRevNumber] = useState(doc_files[0]?.revision_number || '');
-  const [selectedEffectiveDate, setSelectedEffectiveDate] = useState(doc_files[0]?.effectivity_date || '');
   const [currentDate] = useState(() => {
     const now = new Date();
     return `${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}/${now.getFullYear()}`;
@@ -49,39 +46,15 @@ export default function FacultyLoadingPrint({ faculty_users, academic_year, depa
     const updatedFacultyData = [...facultyData];
     const faculty = { ...updatedFacultyData[facultyIndex] };
 
-    if (value.trim() === '') {
-      return;
-    }
-
     if (loadType === 'faculty_loads') {
-      if (!faculty.faculty_loads) {
-        faculty.faculty_loads = [];
-      }
-      
       if (!faculty.faculty_loads[loadIndex]) {
-        faculty.faculty_loads[loadIndex] = {
-          curriculum: {},
-          sections: {}
-        };
+        faculty.faculty_loads[loadIndex] = { curriculum: {} };
       }
-
-      if (field === 'section_name') {
-        faculty.faculty_loads[loadIndex].sections = {
-          ...faculty.faculty_loads[loadIndex].sections,
-          section_name: value
-        };
-      } else if (field === 'room') {
-        faculty.faculty_loads[loadIndex].room = value;
-      } else {
-        faculty.faculty_loads[loadIndex].curriculum = {
-          ...faculty.faculty_loads[loadIndex].curriculum,
-          [field]: value
-        };
-      }
+      faculty.faculty_loads[loadIndex].curriculum = {
+        ...faculty.faculty_loads[loadIndex].curriculum,
+        [field]: value
+      };
     } else if (loadType === 'administrative_loads' || loadType === 'research_loads') {
-      if (!faculty[loadType]) {
-        faculty[loadType] = [];
-      }
       if (!faculty[loadType][loadIndex]) {
         faculty[loadType][loadIndex] = {};
       }
@@ -100,12 +73,7 @@ export default function FacultyLoadingPrint({ faculty_users, academic_year, depa
   const EditableCell = ({ content, onEdit, className = '', colSpan, rowSpan }) => (
     <td 
       contentEditable={true}
-      onBlur={(e) => {
-        const newValue = e.target.textContent;
-        if (newValue.trim() !== content.toString()) {
-          onEdit(newValue);
-        }
-      }}
+      onBlur={(e) => onEdit(e.target.textContent)}
       className={`editable-cell ${className}`}
       colSpan={colSpan}
       rowSpan={rowSpan}
@@ -119,41 +87,41 @@ export default function FacultyLoadingPrint({ faculty_users, academic_year, depa
     <tr key={`empty-${rowIndex}`}>
       <EditableCell 
         content=""
-        onEdit={(value) => value.trim() && handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'course_code', value)}
+        onEdit={(value) => handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'course_code', value)}
         className="text-left"
       />
       <EditableCell 
         content=""
-        onEdit={(value) => value.trim() && handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'descriptive_title', value)}
+        onEdit={(value) => handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'descriptive_title', value)}
         className="text-left"
       />
       <EditableCell 
         content=""
-        onEdit={(value) => value.trim() && handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'section_name', value)}
+        onEdit={(value) => handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'section_name', value)}
       />
       <EditableCell 
         content=""
-        onEdit={(value) => value.trim() && handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'units', value)}
+        onEdit={(value) => handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'units', value)}
       />
       <EditableCell 
         content=""
-        onEdit={(value) => value.trim() && handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'lec', value)}
+        onEdit={(value) => handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'lec', value)}
       />
       <EditableCell 
         content=""
-        onEdit={(value) => value.trim() && handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'lab', value)}
+        onEdit={(value) => handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'lab', value)}
+      />
+      <EditableCell 
+        content="0.00"
+        onEdit={(value) => handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'unit_credit', value)}
+      />
+      <EditableCell 
+        content="0"
+        onEdit={(value) => handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'contact_hours', value)}
       />
       <EditableCell 
         content=""
-        onEdit={(value) => value.trim() && handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'unit_credit', value)}
-      />
-      <EditableCell 
-        content=""
-        onEdit={(value) => value.trim() && handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'contact_hours', value)}
-      />
-      <EditableCell 
-        content=""
-        onEdit={(value) => value.trim() && handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'room', value)}
+        onEdit={(value) => handleCellEdit(facultyIndex, 'faculty_loads', rowIndex, 'room', value)}
       />
     </tr>
   );
@@ -173,7 +141,7 @@ export default function FacultyLoadingPrint({ faculty_users, academic_year, depa
     const researchLoad = researchLoads.reduce((acc, load) => acc + parseFloat(load.units || 0), 0);
     const totalLoad = totalAcademicLoad + administrativeLoad + researchLoad;
 
-    const totalRows = facultyLoads.length + 2 + administrativeLoads.length + researchLoads.length + 5;
+    const totalRows = facultyLoads.length + 2 + administrativeLoads.length + researchLoads.length + 5; // +2 for empty rows, +5 for header and total rows
 
     return (
       <div key={faculty.id} className="faculty-section">
@@ -497,8 +465,8 @@ export default function FacultyLoadingPrint({ faculty_users, academic_year, depa
             .editable-cell {
               background-color: transparent !important;
             }
-            .print-button, .doc-controls {
-              display: none !important;
+            .print-button {
+              display: none;
             }
           }
           .editable-cell {
@@ -530,85 +498,8 @@ export default function FacultyLoadingPrint({ faculty_users, academic_year, depa
           .print-button:hover {
             background-color: #3367d6;
           }
-          .doc-controls {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 1000;
-            background: white;
-            padding: 10px;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          }
-          .doc-controls select {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-            min-width: 200px;
-          }
-          .doc-controls label {
-            font-size: 12px;
-            margin-bottom: 4px;
-            font-weight: bold;
-          }
-          .doc-control-group {
-            display: flex;
-            flex-direction: column;
-          }
         `}</style>
       </Head>
-     
-      <div className="doc-controls">
-        <div className="doc-control-group">
-          <label htmlFor="doc-number">Document Number:</label>
-          <select 
-            id="doc-number"
-            value={selectedDocNumber}
-            onChange={(e) => setSelectedDocNumber(e.target.value)}
-          >
-            {doc_files.map((doc, index) => (
-              <option key={index} value={doc.document_number}>
-                {doc.document_number}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div className="doc-control-group">
-          <label htmlFor="rev-number">Revision Number:</label>
-          <select 
-            id="rev-number"
-            value={selectedRevNumber}
-            onChange={(e) => setSelectedRevNumber(e.target.value)}
-          >
-            {doc_files.map((doc, index) => (
-              <option key={index} value={doc.revision_number}>
-                {doc.revision_number}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div className="doc-control-group">
-          <label htmlFor="effective-date">Effective Date:</label>
-          <select 
-            id="effective-date"
-            value={selectedEffectiveDate}
-            onChange={(e) => setSelectedEffectiveDate(e.target.value)}
-          >
-            {doc_files.map((doc, index) => (
-              <option key={index} value={doc.effectivity_date}>
-                {doc.effectivity_date}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-     
       <button onClick={handlePrint} className="print-button">
         Print Form
       </button>
@@ -628,22 +519,10 @@ export default function FacultyLoadingPrint({ faculty_users, academic_year, depa
               <div className="document-info">
                 <table>
                   <tbody>
-                    <tr>
-                      <td>Doc No.:</td>
-                      <td>{selectedDocNumber}</td>
-                    </tr>
-                    <tr>
-                      <td>Effective Date:</td>
-                      <td>{selectedEffectiveDate || currentDate}</td>
-                    </tr>
-                    <tr>
-                      <td>Rev No.:</td>
-                      <td>{selectedRevNumber}</td>
-                    </tr>
-                    <tr>
-                      <td>Page No.:</td>
-                      <td>{index + 1} of {facultyData.length}</td>
-                    </tr>
+                    <tr><td>Doc No.:</td><td></td></tr>
+                    <tr><td>Effective Date:</td><td>{currentDate}</td></tr>
+                    <tr><td>Rev No.:</td><td></td></tr>
+                    <tr><td>Page No.:</td><td>{index + 1} of {facultyData.length}</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -719,7 +598,7 @@ export default function FacultyLoadingPrint({ faculty_users, academic_year, depa
                 text-align: center;
                 font-size: 16px;
                 margin: 10px 0;
-                border: 2px solid black;
+                text-decoration: underline;
               }
               .college-details {
                 text-align: center;
@@ -789,3 +668,4 @@ export default function FacultyLoadingPrint({ faculty_users, academic_year, depa
     </ErrorBoundary>
   );
 }
+

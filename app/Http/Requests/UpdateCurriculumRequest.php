@@ -27,7 +27,9 @@ class UpdateCurriculumRequest extends FormRequest
 
             'course_code'       => [
                 'required',
-                Rule::unique('curricula')->ignore($code->id),
+                Rule::unique('curricula')->where(function ($query) {
+                    return $query->where('course_id', $this->course_id);
+                })  ->ignore($code->id),
                 'max:255'
             ],
             'descriptive_title' => ['required', 'max:255'],

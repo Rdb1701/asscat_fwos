@@ -5,6 +5,7 @@ use App\Http\Controllers\Dean\ChairpersonController;
 use App\Http\Controllers\Dean\ProgramController;
 use App\Http\Controllers\DeanController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DocumentNumberController;
 use App\Http\Controllers\Faculty\FacultyController;
 use App\Http\Controllers\FacultyUser\FacultyLoadingController;
 use App\Http\Controllers\Head\AdminLoadController;
@@ -37,7 +38,6 @@ Route::get('/', function () {
         } elseif ($user->role === "Faculty") {
             return redirect()->route('faculty.dashboard');
         }
-
         return redirect()->route('/');
     }
 
@@ -50,7 +50,6 @@ Route::middleware('auth', 'registrar')->group(function () {
     Route::get('registrar/dashboard', [AcademicYearController::class, 'index'])
         ->name('registrar.dashboard');
 
-
     Route::resource('academic', AcademicYearController::class);
     Route::resource('department', DepartmentController::class);
     Route::resource('deanAccount', DeanController::class);
@@ -58,8 +57,11 @@ Route::middleware('auth', 'registrar')->group(function () {
     Route::put('dean/{dean}/changepassword', [DeanController::class, 'changepassword'])
         ->name('dean_account.changepassword');
 
-});
+    //Document Number
 
+    Route::resource('document_number', DocumentNumberController::class);
+
+});
 
 //DEAN MIDDLEWARE
 Route::middleware('auth', 'dean')->group(function () {
@@ -90,7 +92,9 @@ Route::middleware('auth', 'chairperson')->group(function () {
 
     Route::get('curriculum_search', [CurriculumController::class, 'getSearch'])->name('getSearch.curriculum');
 
-    Route::get('curriculum_print',[CurriculumController::class, 'getPrint'])->name('getPrint.curriculum');
+    Route::get('curriculum_print/pdf',[CurriculumController::class, 'getPrint'])->name('getPrint.curriculum');
+
+    Route::get('curriculum_print',[CurriculumController::class, 'getPrintExcel'])->name('getPrintExcel.curriculum');
 
     Route::post('curriculum/import', [CurriculumController::class, 'import'])->name('curriculum.import');
 
@@ -118,6 +122,8 @@ Route::middleware('auth', 'chairperson')->group(function () {
     Route::get('Faculty_load/view', [FacultyLoadController::class, 'facultyView'])->name('faculty_view.view');
 
     Route::get('Faculty_load/change', [FacultyLoadController::class, 'change'])->name('faculty_load.change');
+
+    Route::get('Faculty_load/curriculum_change', [FacultyLoadController::class, 'curriculum_change'])->name('faculty_curriculum.change');
 
     Route::resource('administrative_load', AdminLoadController::class);
 

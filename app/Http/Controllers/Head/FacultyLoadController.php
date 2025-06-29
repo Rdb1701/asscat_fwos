@@ -50,7 +50,7 @@ class FacultyLoadController extends Controller
             'success' => session('success')
         ]);
     }
-
+    
     /**
      * Show the form for creating a new resource.
      */
@@ -226,6 +226,7 @@ class FacultyLoadController extends Controller
 
     public function facultyView(Request $request)
     {
+        $user = Auth::user();
         $faculty_id = $request->input('faculty_id');
         //academic years
         $academic_years  = DB::table('academic_years')->select('*')->get();
@@ -239,7 +240,7 @@ class FacultyLoadController extends Controller
 
 
         //get all section
-        $section = DB::table('sections')->select('*')->get();
+        $section = DB::table('sections')->select('*')->where('course_id', $user->course_id)->get();
 
         //faculty_load view
         $faculty_load_query = DB::table('faculty_loads as fl')
@@ -308,6 +309,23 @@ class FacultyLoadController extends Controller
             ->get();
 
         return response()->json($query);
+    }
+
+
+    public function curriculum_change(Request $request)
+    {
+        $user = Auth::user();
+        $curriculum_id = $request->input('curriculum_id');
+        $get_year_level = DB::table('curricula')->select('year_level')->where('id', $curriculum_id)->first();
+
+
+        $query1 = DB::table('sections')
+            ->select('section_name', 'id')
+            ->where('year_level', $get_year_level->year_level)
+            ->where('course_id', $user->course_id)
+            ->get();
+
+        return response()->json($query1);
     }
 
 
@@ -404,38 +422,44 @@ class FacultyLoadController extends Controller
     {
         $user = Auth::user();
         $academic_year_id = $request->input('academic_year_filter');
-    
+
         // Get all faculty users
         $faculty_users = User::where(function ($query) {
             $query->where('role', 'Faculty')
-                  ->orWhere('role', 'Chairperson');
+                ->orWhere('role', 'Chairperson');
         })
-        ->where('course_id', $user->course_id)
-        ->with([
-            'department',
-            'employment',
-            'administrativeLoads',
-            'researchLoads',
-            'facultyLoads' => function ($query) use ($academic_year_id) {
-                $query->where('academic_id', $academic_year_id)
-                      ->with(['curriculum', 'sections', 'academicYear']);
-            }
-        ])
-        ->get();
-    
+            ->where('course_id', $user->course_id)
+            ->with([
+                'department',
+                'employment',
+                'administrativeLoads',
+                'researchLoads',
+                'facultyLoads' => function ($query) use ($academic_year_id) {
+                    $query->where('academic_id', $academic_year_id)
+                        ->with(['curriculum', 'sections', 'academicYear']);
+                }
+            ])
+            ->get();
+
+        //GET DOCUMENT & REVISION NUMBER
+        $document_number = DB::table('document_numbers')
+            ->select('*', DB::raw("DATE_FORMAT(effective_date, '%m/%d/%Y') as effectivity_date"))
+            ->where('for', 'Faculty Loads')
+            ->get();
+
         // Get academic year
         $academic_year = AcademicYear::findOrFail($academic_year_id);
-    
+
         // Get course and department info
         $course = Course::with(['department', 'department.users' => function ($query) {
             $query->where('role', 'Dean');
         }])->findOrFail($user->course_id);
-    
+
         // Get chairperson
         $chairperson = User::where('course_id', $user->course_id)
-                           ->where('role', 'Chairperson')
-                           ->first();
-    
+            ->where('role', 'Chairperson')
+            ->first();
+
         return Inertia::render("Chairperson/FacultyLoading/Print3", [
             'faculty_users' => $faculty_users,
             'academic_year' => $academic_year,
@@ -443,11 +467,12 @@ class FacultyLoadController extends Controller
             'course'        => $course,
             'dean'          => $course->department->users->first(),
             'chair'         => $chairperson,
+            'doc_files'     => $document_number,
             'success'       => session('success')
         ]);
     }
-    
-    
+
+
 
 
     public function generateFacultyLoads(Request $request)
@@ -572,7 +597,7 @@ class FacultyLoadController extends Controller
     {
         switch ($employmentStatus) {
             case 'Full-Time':
-                return 27;
+                return 21;
             case 'Part-Time':
                 return 15;
             case 'COS':

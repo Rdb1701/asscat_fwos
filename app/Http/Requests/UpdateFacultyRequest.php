@@ -35,8 +35,7 @@ class UpdateFacultyRequest extends FormRequest
             'course_id'                  => ['required', 'max:11'],
             'employment_classification'  => ['required', 'max:255'],
             'employment_status'          => ['required', 'max:255'],
-            'regular_load'               => ['required', 'max:255'],
-            'extra_load'                 => ['required', 'max:255'],
+           
         ];
 
     }

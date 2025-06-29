@@ -291,6 +291,68 @@ class CurriculumController extends Controller
     }
 
 
+    public function getPrintExcel(Request $request)
+    {
+        //SEARCH QUERY
+        $course             = $request->input('course');
+        $school_year        = $request->input('school_year');
+        $course_description = $request->input('course_description');
+        $curriculum_year  = $request->input('curriculum_year');
+
+        // get course and Dean
+        $get_course = DB::table('courses as c')->select(
+            'c.course_description',
+            'c.course_name',
+            'u.name as dean_name',
+            'd.department_name',
+            'd.department_description',
+            'u.department_id'
+        )
+            ->leftJoin('users as u', 'u.department_id', 'c.department_id')
+            ->leftJoin('departments as d', 'd.id', 'c.department_id')
+            ->where('c.id', $course)->first();
+
+        //get chairperson Name
+        $get_chairperson = DB::table('users')->select('name as chairperson_name')->where('course_id', $course)->where('role', 'Chairperson')->first();
+
+        //get curriculum
+        $search = DB::table('curricula as circ')
+            ->leftJoin('courses as c', 'c.id', 'circ.course_id')
+            ->select(
+                'circ.*',
+                'c.course_name'
+            )
+            ->where('circ.course_id', $course)
+            ->where('efectivity_year', $school_year)
+            ->orderByRaw("
+        CASE 
+            WHEN circ.year_level = 'First Year' THEN 1
+            WHEN circ.year_level = 'Second Year' THEN 2
+            WHEN circ.year_level = 'Third Year' THEN 3
+            WHEN circ.year_level = 'Fourth Year' THEN 4
+        END
+    ")
+            ->orderBy('semester', 'asc')
+            ->get();
+
+
+        // Check if no data is found
+        $noDataFound = $search->isEmpty();
+
+
+        return inertia("Chairperson/Curriculum/PrintExcel", [
+            'curriculum'          => $search,
+            'program'             => $get_course,
+            'school_year'         => $school_year,
+            'course_description'  => $course_description,
+            'noDataFound'         => $noDataFound,
+            'chairperson'         => $get_chairperson,
+            'curriculum_year'     => $curriculum_year
+
+        ]);
+    }
+
+
     public function import(Request $request)
     {
         $request->validate([

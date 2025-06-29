@@ -141,7 +141,16 @@ class CourseOffer extends Controller
         $course           = $request->input('course');
         $school_year      = $request->input('school_year');
         $year_level       = $request->input('year_level');
-        $curriculum_year  = $request->input('curriculum_year');
+       // $curriculum_year  = $request->input('curriculum_year');
+
+       $get_curriculum_year = DB::table('course_offerings')->select('effectivity_year')
+            ->where('academic_id', $school_year)
+            ->where('year_level', $year_level)
+            ->where('course_id', $course)
+            ->first();
+        
+         // Check if a result is found and extract the effectivity year
+         $curriculum_year = $get_curriculum_year ? $get_curriculum_year->effectivity_year : null;
 
         //get school year
         $get_school_year = DB::table('academic_years')->select('school_year', 'semester')->where('id', $school_year)->first();

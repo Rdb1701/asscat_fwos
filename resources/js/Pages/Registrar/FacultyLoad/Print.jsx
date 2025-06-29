@@ -171,7 +171,7 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
           </tbody>
         </table><br/><br/>
 
-        <footer>
+        {/* <footer>
           <div className="signature-line">
             <p>Prepared by:</p>
             <br/>
@@ -200,8 +200,25 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
             <p className="position">VP for Academic Affairs and Quality Assurance</p>
             <p className="date">Date: ___/___/___</p>
           </div>
-        </footer>
+        </footer> */}
 
+            <footer>
+              <div className="signature-section">
+                <div className="signature-line">
+                  <p>PC's Initial: _________________</p>
+                  <p>Date: _____/_____/_____</p>
+                </div>
+                <div className="signature-line">
+                  <p>Dean's Initial: _________________</p>
+                  <p>Date: _____/_____/_____</p>
+                </div>
+                <div className="signature-line">
+                  <p>Chief Curriculum Planning and Development Initial: _________________</p>
+                  <p>Date: _____/_____/_____</p>
+                </div>
+              </div>
+            </footer>
+            
         <style jsx>{`
           .faculty-loading-form {
             font-family: Arial, sans-serif;
@@ -288,16 +305,19 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
             justify-content: space-between;
             margin-top: 10px;
           }
+          .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            width: 100%;
+          }
           .signature-line {
-            text-align: center;
-            width: 24%;
+            text-align: left;
+            margin: 0 10px;
           }
           .signature-line p {
-            margin: 2px 0;
+            margin: 5px 0;
             font-size: 10px;
-          }
-          .name {
-            font-weight: bold;
           }
         `}</style>
       </div>

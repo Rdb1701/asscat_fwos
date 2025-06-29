@@ -172,35 +172,21 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
         </table><br/><br/>
 
         <footer>
-          <div className="signature-line">
-            <p>Prepared by:</p>
-            <br/>
-            <p className="name">{chair.name.toUpperCase()}</p>
-            <p className="position">Chairperson, {department.course_name.toUpperCase()}</p>
-            <p className="date">Date: ___/___/___</p>
-          </div>
-          <div className="signature-line">
-            <p>Checked by:</p>
-            <br/>
-            <p className="name">{department.dean_name.toUpperCase()}</p>
-            <p className="position">Dean, {department.department_name}</p>
-            <p className="date">Date: ___/___/___</p>
-          </div>
-          <div className="signature-line">
-            <p>Reviewed by:</p>
-            <br/>
-            <p className="name">LIEZL MAY G. PEREZ</p>
-            <p className="position">Chief Curriculum Planning and Development</p>
-            <p className="date">Date: ___/___/___</p>
-          </div>
-          <div className="signature-line">
-            <p>Approved:</p>
-            <br/>
-            <p className="name">CARMELO S. LLANTO, Ph.D.</p>
-            <p className="position">VP for Academic Affairs and Quality Assurance</p>
-            <p className="date">Date: ___/___/___</p>
-          </div>
-        </footer>
+              <div className="signature-section">
+                <div className="signature-line">
+                  <p>PC's Initial: _________________</p>
+                  <p>Date: _____/_____/_____</p>
+                </div>
+                <div className="signature-line">
+                  <p>Dean's Initial: _________________</p>
+                  <p>Date: _____/_____/_____</p>
+                </div>
+                <div className="signature-line">
+                  <p>Chief Curriculum Planning and Development Initial: _________________</p>
+                  <p>Date: _____/_____/_____</p>
+                </div>
+              </div>
+            </footer>
 
         <style jsx>{`
           .faculty-loading-form {
@@ -288,17 +274,20 @@ export default function FacultyLoadingForm({ facultyLoad,faculty_info, administr
             justify-content: space-between;
             margin-top: 10px;
           }
-          .signature-line {
-            text-align: center;
-            width: 24%;
-          }
-          .signature-line p {
-            margin: 2px 0;
-            font-size: 10px;
-          }
-          .name {
-            font-weight: bold;
-          }
+        .signature-section {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 20px;
+          width: 100%;
+        }
+        .signature-line {
+          text-align: left;
+          margin: 0 10px;
+        }
+        .signature-line p {
+          margin: 5px 0;
+          font-size: 10px;
+        }
         `}</style>
       </div>
     </>

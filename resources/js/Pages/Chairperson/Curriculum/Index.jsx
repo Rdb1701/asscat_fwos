@@ -1,4 +1,3 @@
-'use client'
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
@@ -34,11 +33,58 @@ export default function Index({
     useEffect(() => {
         $(document).ready(function () {
             $("#curTable").DataTable({
-                pageLength: 100
+                pageLength: 100,
+                order: [[9, "asc"], [1, "asc"]], // First sort by semester (column 9), then by descriptive title (column 1)
+                columnDefs: [
+                    {
+                        targets: [9], // Semester column
+                        orderable: true,
+                        type: 'string',
+                        render: function(data) {
+                            // Convert semester text to a sortable value
+                            const semesterMap = {
+                                'First': '1',
+                                'Second': '2',
+                                'Summer': '3'
+                            };
+                            return semesterMap[data] || data;
+                        }
+                    },
+                    {
+                        targets: [1], // Descriptive title column
+                        orderable: true
+                    },
+                    {
+                        targets: [11], // Action column
+                        orderable: false
+                    }
+                ],
+                // Add dropdown filter for semester
+                initComplete: function () {
+                    this.api().columns(9).every(function () {
+                        const column = this;
+                        const select = $('<select class="ml-2"><option value="">All Semesters</option></select>')
+                            .appendTo($(column.header()))
+                            .on('change', function () {
+                                const val = $.fn.dataTable.util.escapeRegex($(this).val());
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+    
+                        column.data().unique().sort().each(function (d) {
+                            select.append('<option value="' + d + '">' + d + '</option>');
+                        });
+                    });
+                }
             });
         });
-    }, [])
-
+    
+        // Clean up DataTable on component unmount
+        return () => {
+            $("#curTable").DataTable().destroy(true);
+        };
+    }, []);
     const handleSearch = (e) => {
         e.preventDefault();
 

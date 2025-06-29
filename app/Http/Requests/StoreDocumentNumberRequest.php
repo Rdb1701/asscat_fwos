@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreSectionRequest extends FormRequest
+class StoreDocumentNumberRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,10 @@ class StoreSectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-           // "section_name"        =>['required','max:255'],
-            'year_level'         => ['required','max:255'],
-            'course_id'          => ['max:255'],
-            'section_count'      => ['required']
-         ];
+            "document_number" => ['required', 'max:255', 'unique:document_numbers,document_number'],
+            "revision_number"  => ['required', 'max:255'],
+            "effective_date"   => ['required', 'max:255'],
+            "for"              => ['required', 'max:255'],
+        ];
     }
 }
